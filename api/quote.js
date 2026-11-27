@@ -136,13 +136,57 @@ const INVENTED_TIME = [
   word(["today", "tonight", "tomorrow", "next week", "this week", "heute", "morgen",
         "übermorgen", "nächste woche", "nächsten woche", "diese woche", "dieser woche"])
 ];
+// "Openings" = number of whole windows/doors, never sashes ("Flügel")
+const SASH_WORDS = /flügel|\bsash(?:es)?\b/i;
 function checkDraft(text, language) {
   const [p1, p2] = placeholders(language);
   if (!text.includes(p1) || !text.includes(p2)) return "placeholders missing";
+  if (SASH_WORDS.test(text)) return "talks about sashes (" + text.match(SASH_WORDS)[0] + ") instead of whole units";
   // Check the text with the placeholders removed, so "[Day, time 1]" itself is allowed
   const rest = text.split(p1).join(" ").split(p2).join(" ");
   const hit = INVENTED_TIME.find((re) => re.test(rest));
   return hit ? "contains a date or time: " + (rest.match(hit) || [""])[0].trim() : "";
+}
+
+// The quantity as words, built here so the AI copies it instead of choosing a word:
+// "1 Fenster" / "2 Fenster", "1 Tür" / "2 Türen", "1 window" / "2 windows", …
+const UNIT_NAMES = {
+  de: { windows: ["Fenster", "Fenster"], doors: ["Tür", "Türen"], sliding: ["Schiebesystem", "Schiebesysteme"] },
+  en: { windows: ["window", "windows"], doors: ["door", "doors"], sliding: ["sliding system", "sliding systems"] }
+};
+function quantityPhrase(language, product, count) {
+  const [one, many] = UNIT_NAMES[language === "de" ? "de" : "en"][product];
+  return count + " " + (count === 1 ? one : many);
+}
+
+// German: paragraph 1 comes straight after "Guten Tag X," — so its first word is
+// lowercase unless it is a noun or a formal pronoun (Sie, Ihr, Ihre, Ihnen …).
+// Common non-nouns are forced to lowercase; formal pronouns to uppercase; any other
+// word keeps the AI's own spelling (almost always a noun, e.g. "Rückruf").
+const DE_FORMAL = new Set(["sie", "ihr", "ihre", "ihren", "ihrem", "ihrer", "ihres", "ihnen"]);
+const DE_LOWERCASE = new Set([
+  "unser", "unsere", "unserem", "unseren", "unserer", "unseres", "wir", "uns",
+  "vielen", "herzlichen", "besten", "lieben", "danke", "gerne", "gern", "schön", "schon",
+  "gleich", "natürlich", "selbstverständlich", "selbstverstaendlich", "leider", "zunächst", "zuerst",
+  "vorab", "hiermit", "anbei", "kurz", "auch", "nun", "da", "wie", "so", "sehr", "bitte",
+  "mit", "für", "zu", "zum", "zur", "auf", "nach", "bei", "bezüglich", "wegen", "über", "um",
+  "der", "die", "das", "den", "dem", "des", "ein", "eine", "einen", "einem", "einer",
+  "es", "im", "in", "am", "als", "wenn", "damit", "dass", "gerade", "heute"
+]);
+function germanFirstWord(original, capitalized) {
+  const re = /^(["„»(]*)(\p{L}+)/u;
+  const m = capitalized.match(re);
+  if (!m) return capitalized;
+  const word = m[2];
+  const lower = word.toLowerCase();
+  let fixed;
+  if (DE_FORMAL.has(lower)) fixed = word.charAt(0).toUpperCase() + word.slice(1);
+  else if (DE_LOWERCASE.has(lower)) fixed = lower;
+  else {
+    const o = original.match(re);                 // keep the AI's own spelling
+    fixed = o && o[2].toLowerCase() === lower ? o[2] : word;
+  }
+  return m[1] + fixed + capitalized.slice(m[0].length);
 }
 
 // Keep text within a word limit, ending at a full sentence if possible
@@ -194,7 +238,7 @@ async function draftReply(f) {
     reply_language: de ? "German" : "English",
     selected_product: f.product,
     material: f.material,
-    number_of_openings: f.openings,
+    quantity: quantityPhrase(f.language, f.productKey, f.openings),
     size: f.size,
     glazing: f.glazing,
     estimated_range: f.estimate || "not shown",
@@ -211,7 +255,10 @@ async function draftReply(f) {
     "  including typos and informal wording (e.g. \"ruckruff\", \"bitte anrufen\", \"pls ring me\", \"call me back\"). Otherwise false.",
     "",
     "draft: ONLY the two middle paragraphs, separated by one blank line. The greeting (\"" + greeting + "\") and the sign-off are added automatically — do not write them.",
-    "Language: " + (de ? "German, formal 'Sie'." : "English.") + " Every paragraph and every sentence starts with a capital letter.",
+    "Language: " + (de
+      ? "German, formal 'Sie'. Paragraph 1 continues straight after the greeting line \"" + greeting + "\", so its FIRST word starts with a lowercase letter unless it is a noun or a formal pronoun (Sie, Ihr, Ihre, Ihnen) — e.g. \"unser Team wird Sie …\", \"vielen Dank …\", \"Ihre Anfrage …\". Every other sentence, and paragraph 2, starts with a capital letter."
+      : "English. Every paragraph and every sentence starts with a capital letter."),
+    "Quantity: 'quantity' is the number of whole " + (de ? "windows/doors" : "windows/doors") + ", not sashes. Write it exactly as given (e.g. \"" + quantityPhrase(f.language, f.productKey, f.openings) + "\"). Never use " + (de ? "\"Flügel\" or \"Öffnungen\"" : "\"sash\" or \"openings\"") + ".",
     "Voice: always speak as the company — 'we' and '" + (de ? "unser Team" : "our team") + "'. Never 'I'.",
     "",
     "Paragraph 1 — the customer's own message has priority over the form fields. In this order:",
@@ -219,7 +266,7 @@ async function draftReply(f) {
       " (if customer_gave_phone_number is false, say our team will contact them by email to arrange the call).",
     "  b) If other_products_mentioned_in_message is not empty: acknowledge that they mentioned it and say our team will look at it with them at the measuring visit.",
     "  c) If the message asks anything you cannot answer from the facts, say our team will clarify it with them.",
-    "  d) Then thank them and briefly restate the selected request: product, material, number of openings, size, glazing.",
+    "  d) Then thank them and briefly restate the selected request: quantity, material, size, glazing.",
     "Paragraph 2: give the estimated range exactly as written and say it is a rough online estimate, not a final price.",
     "  Then propose a free measuring visit and offer exactly these two placeholders, copied character for character: " + slot1 + " and " + slot2 + ". Ask which suits them, or whether another time is better.",
     "",
@@ -281,6 +328,7 @@ async function draftReply(f) {
 
     // Capital letters, then the word budget (paragraph 1 gets at most ~60%)
     let p1 = capitalizeSentences(parts[0]);
+    if (f.language === "de") p1 = germanFirstWord(parts[0], p1);   // lowercase after "Guten Tag X,"
     let p2 = capitalizeSentences(parts.slice(1).join(" "));
     p1 = limitWords(p1, Math.ceil(bodyBudget * 0.6));
     p2 = limitWords(p2, bodyBudget - countWords(p1));
@@ -371,6 +419,7 @@ module.exports = async function handler(req, res) {
   const ai = await draftReply({
     language,
     name,
+    productKey: data.product,
     product: ALLOWED.product[data.product],
     material: ALLOWED.material[data.material],
     openings,
