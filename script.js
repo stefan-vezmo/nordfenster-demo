@@ -331,6 +331,7 @@ const DEMO_PRICING = {
       phone: form.elements.phone.value.trim(),
       email: form.elements.email.value.trim(),
       message: form.elements.message.value.trim(),
+      lang: form.elements.lang.value,            // page language, e.g. "en"
       company: form.elements.company.value      // honeypot: always empty for real people
     };
 
@@ -382,6 +383,9 @@ const DEMO_PRICING = {
       }
     });
   });
+
+  // Tell the server which language the page is in (from <html lang="…">)
+  form.elements.lang.value = (document.documentElement.lang || "en").slice(0, 2).toLowerCase();
 
   setOpenings(1);
 
