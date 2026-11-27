@@ -17,6 +17,7 @@ It is a portfolio demo: there is no real company, no real customers, no real pri
 - `QUOTE_TO_EMAIL`: the inbox that receives quote requests. Required.
 - `OPENAI_API_KEY`: enables the AI reply draft. Optional.
 - `OPENAI_MODEL`: the OpenAI model name for the draft. Optional; without both OpenAI vars, no draft.
+- `OWNER_LANG`: language of the owner notification email, `de` (default) or `en`. Optional.
 Local secrets go in `.env*`, which is git-ignored.
 
 ## EN / DE translations
@@ -38,7 +39,8 @@ Local secrets go in `.env*`, which is git-ignored.
 
 ## German wording rules
 - Austrian-friendly German, always the formal **Sie** form.
-- Say **Kunststoff**, not PVC (e.g. "Kunststoff/Alu"). Also: *Stück*, *2-fach/3-fach*, *kostenloses Ausmessen*.
+- Say **Kunststoff**, not PVC (e.g. "Kunststoff/Alu"). German AI drafts get the site's words from `LABELS.de`
+  in `api/quote.js` (Kunststoff, Alu, Fenster, Türen, Schiebesysteme); `checkDraft()` rejects "PVC". Also: *Stück*, *2-fach/3-fach*, *kostenloses Ausmessen*.
 - Prices in Austrian style: `€ 1.480 – € 2.170`.
 - Email greeting is always "Guten Tag [Name]," (never Herr/Frau). The sentence after it starts **lowercase**
   unless it is a noun or a formal pronoun (Sie, Ihr, Ihre, Ihnen): "Guten Tag Anna, vielen Dank …".

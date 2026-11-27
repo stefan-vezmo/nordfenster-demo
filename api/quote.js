@@ -15,6 +15,9 @@
 //   OPENAI_API_KEY   your OpenAI API key (starts with "sk-")
 //   OPENAI_MODEL     the model name to use, e.g. "gpt-4o-mini"
 //
+// Optional (language of the notification email to the owner):
+//   OWNER_LANG       "de" (default) or "en"
+//
 // No npm packages: Node 18+ has fetch built in.
 // =========================================================
 
@@ -33,6 +36,19 @@ const ALLOWED = {
   size: { small: "Small (up to 1 m²)", medium: "Medium (1–2 m²)", large: "Large (over 2 m²)" },
   glazing: { double: "Double", triple: "Triple" }
 };
+
+// The same options in the words the website uses, per language.
+// German uses the site's terms: Kunststoff (never PVC), Alu, Fenster, Türen, Schiebesysteme.
+const LABELS = {
+  en: ALLOWED,
+  de: {
+    product: { windows: "Fenster", doors: "Türen", sliding: "Schiebesysteme" },
+    material: { pvc: "Kunststoff", alu: "Alu" },
+    size: { small: "Klein (bis 1 m²)", medium: "Mittel (1–2 m²)", large: "Groß (über 2 m²)" },
+    glazing: { double: "2-fach", triple: "3-fach" }
+  }
+};
+const labelsFor = (language) => (language === "de" ? LABELS.de : LABELS.en);
 
 // =========================================================
 // Small text helpers
@@ -112,7 +128,7 @@ const PRODUCT_WORDS = {
   doors: word(["tür(?:e|en)?", "haustür(?:en)?", "balkontür(?:en)?", "eingangstür(?:en)?", "terrassentür(?:en)?", "doors?"]),
   windows: word(["fenster", "windows?"])
 };
-function readCustomerMessage(message, selectedProduct) {
+function readCustomerMessage(message, selectedProduct, language) {
   const t = message.toLowerCase().replace(/nordfenster/g, " ");
   // "Schiebetür" is a sliding system, not an ordinary door
   const withoutSliding = t.replace(/(?:hebe)?schiebetür(?:en)?/g, " ");
@@ -120,7 +136,7 @@ function readCustomerMessage(message, selectedProduct) {
   if (PRODUCT_WORDS.sliding.test(t)) mentioned.push("sliding");
   if (PRODUCT_WORDS.doors.test(withoutSliding)) mentioned.push("doors");
   if (PRODUCT_WORDS.windows.test(t)) mentioned.push("windows");
-  const otherProducts = mentioned.filter((p) => p !== selectedProduct).map((p) => ALLOWED.product[p]);
+  const otherProducts = mentioned.filter((p) => p !== selectedProduct).map((p) => labelsFor(language).product[p]);
   return { otherProducts };
 }
 
@@ -141,6 +157,7 @@ const SASH_WORDS = /flügel|\bsash(?:es)?\b/i;
 function checkDraft(text, language) {
   const [p1, p2] = placeholders(language);
   if (!text.includes(p1) || !text.includes(p2)) return "placeholders missing";
+  if (language === "de" && /\bpvc\b/i.test(text)) return "uses PVC instead of Kunststoff";
   if (SASH_WORDS.test(text)) return "talks about sashes (" + text.match(SASH_WORDS)[0] + ") instead of whole units";
   // Check the text with the placeholders removed, so "[Day, time 1]" itself is allowed
   const rest = text.split(p1).join(" ").split(p2).join(" ");
@@ -259,6 +276,7 @@ async function draftReply(f) {
       ? "German, formal 'Sie'. Paragraph 1 continues straight after the greeting line \"" + greeting + "\", so its FIRST word starts with a lowercase letter unless it is a noun or a formal pronoun (Sie, Ihr, Ihre, Ihnen) — e.g. \"unser Team wird Sie …\", \"vielen Dank …\", \"Ihre Anfrage …\". Every other sentence, and paragraph 2, starts with a capital letter."
       : "English. Every paragraph and every sentence starts with a capital letter."),
     "Quantity: 'quantity' is the number of whole " + (de ? "windows/doors" : "windows/doors") + ", not sashes. Write it exactly as given (e.g. \"" + quantityPhrase(f.language, f.productKey, f.openings) + "\"). Never use " + (de ? "\"Flügel\" or \"Öffnungen\"" : "\"sash\" or \"openings\"") + ".",
+    ...(de ? ["Product words: use exactly the German words given in the facts — \"Kunststoff\" (never \"PVC\" or \"Plastik\"), \"Alu\", \"Fenster\", \"Türen\", \"Schiebesysteme\"."] : []),
     "Voice: always speak as the company — 'we' and '" + (de ? "unser Team" : "our team") + "'. Never 'I'.",
     "",
     "Paragraph 1 — the customer's own message has priority over the form fields. In this order:",
@@ -382,6 +400,46 @@ const MESSAGES = {
   }
 };
 
+// Texts of the notification email to the owner (OWNER_LANG: "de" default, or "en")
+const OWNER_TEXT = {
+  de: {
+    locale: "de-AT",
+    product: "Produkt", material: "Material", openings: "Anzahl", size: "Größe", glazing: "Verglasung",
+    estimate: "Angezeigter Richtpreis", name: "Name", phone: "Telefon", email: "E-Mail", message: "Nachricht",
+    callback: "Rückruf gewünscht", replyLanguage: "Antwortsprache", received: "Eingegangen",
+    yes: "Ja", no: "Nein", unknown: "Unklar – bitte Nachricht lesen",
+    langDe: "Deutsch", langEn: "Englisch", viennaTime: "(Wiener Zeit)",
+    heading: "Neue Angebotsanfrage", textHeading: "Neue Angebotsanfrage über die Website",
+    estimateNote: "Der Richtpreis ist die Demo-Spanne von der Website, kein Endpreis.",
+    draftTitle: "Antwortvorschlag (KI-Entwurf, vor dem Senden prüfen)",
+    placeholderNote: "Ersetzen Sie die [ ]-Platzhalter vor dem Senden durch echte Termine.",
+    noEmail: "Keine E-Mail-Adresse angegeben – nutzen Sie den Entwurf als Notizen für ein Telefonat.",
+    replyButton: "Mit diesem Entwurf antworten",
+    draftFailed: "Der KI-Antwortvorschlag konnte diesmal nicht erstellt werden.",
+    callbackNote: (phone) => "Rückruf gewünscht – bitte zurückrufen" +
+      (phone ? ": " + phone + "." : ". Es wurde keine Telefonnummer angegeben, bitte per E-Mail einen Rückruftermin vereinbaren."),
+    subject: "Angebotsanfrage: ", subjectCallback: " (Rückruf gewünscht)"
+  },
+  en: {
+    locale: "en-GB",
+    product: "Product", material: "Material", openings: "Quantity", size: "Size", glazing: "Glazing",
+    estimate: "Estimated range shown", name: "Name", phone: "Phone", email: "Email", message: "Message",
+    callback: "Callback requested", replyLanguage: "Reply language", received: "Received",
+    yes: "Yes", no: "No", unknown: "Unknown — please read the message",
+    langDe: "German", langEn: "English", viennaTime: "(Vienna time)",
+    heading: "New quote request", textHeading: "New quote request from the website",
+    estimateNote: "The estimate is the demo range shown on the website, not a final price.",
+    draftTitle: "Suggested reply (AI draft, check before sending)",
+    placeholderNote: "Replace the [ ] placeholders with real appointment times before sending.",
+    noEmail: "No customer email was given — use the draft as notes for a phone call.",
+    replyButton: "Reply with this draft",
+    draftFailed: "The AI reply draft could not be created this time.",
+    callbackNote: (phone) => "Callback requested — please call the customer" +
+      (phone ? " on " + phone + "." : ". No phone number was given, so reply by email to arrange the call."),
+    subject: "Quote request: ", subjectCallback: " (callback requested)"
+  }
+};
+
 // =========================================================
 // The request handler
 // =========================================================
@@ -449,17 +507,18 @@ module.exports = async function handler(req, res) {
   //    clearly German message always gets a German reply.
   const pageLang = /^[a-z]{2}$/.test(String(data.lang || "")) ? String(data.lang) : "en";
   const language = isClearlyGerman(message) ? "de" : (pageLang === "de" ? "de" : "en");
-  const msgInfo = readCustomerMessage(message, data.product);
+  const msgInfo = readCustomerMessage(message, data.product, language);
+  const R = labelsFor(language);
 
   const ai = await draftReply({
     language,
     name,
     productKey: data.product,
-    product: ALLOWED.product[data.product],
-    material: ALLOWED.material[data.material],
+    product: R.product[data.product],
+    material: R.material[data.material],
     openings,
-    size: ALLOWED.size[data.size],
-    glazing: ALLOWED.glazing[data.glazing],
+    size: R.size[data.size],
+    glazing: R.glazing[data.glazing],
     estimate,
     message,
     hasPhone: !!phone,
@@ -472,7 +531,10 @@ module.exports = async function handler(req, res) {
   // If the AI gave no usable answer we say "Unknown" rather than guessing "No",
   // so a callback request is never silently missed.
   const callback = !message ? false : ai.callbackRequested;   // true / false / null
-  const callbackLabel = callback === true ? "Yes" : callback === false ? "No" : "Unknown — please read the message";
+  const ownerLang = String(process.env.OWNER_LANG || "de").trim().toLowerCase() === "en" ? "en" : "de";
+  const O = OWNER_TEXT[ownerLang];
+  const OL = labelsFor(ownerLang);
+  const callbackLabel = callback === true ? O.yes : callback === false ? O.no : O.unknown;
 
   // "Reply with this draft" link: opens a new email to the customer with the draft filled in
   let mailto = "";
@@ -484,53 +546,52 @@ module.exports = async function handler(req, res) {
   }
 
   // 7. Build the email
-  const time = new Date().toLocaleString("en-GB", {
+  const time = new Date().toLocaleString(O.locale, {
     timeZone: "Europe/Vienna",
     dateStyle: "full",
     timeStyle: "short"
   });
 
   const rows = [
-    ["Product", ALLOWED.product[data.product]],
-    ["Material", ALLOWED.material[data.material]],
-    ["Openings", String(openings)],
-    ["Size", ALLOWED.size[data.size]],
-    ["Glazing", ALLOWED.glazing[data.glazing]],
-    ["Estimated range shown", estimate || "—"],
-    ["Name", name],
-    ["Phone", phone || "—"],
-    ["Email", email || "—"],
-    ["Message", message || "—"],
-    ["Callback requested", callbackLabel, callback === true],   // third item = highlight this row
-    ["Reply language", language === "de" ? "German" : "English"],
-    ["Received", time + " (Vienna time)"]
+    [O.product, OL.product[data.product]],
+    [O.material, OL.material[data.material]],
+    [O.openings, String(openings)],
+    [O.size, OL.size[data.size]],
+    [O.glazing, OL.glazing[data.glazing]],
+    [O.estimate, estimate || "—"],
+    [O.name, name],
+    [O.phone, phone || "—"],
+    [O.email, email || "—"],
+    [O.message, message || "—"],
+    [O.callback, callbackLabel, callback === true],   // third item = highlight this row
+    [O.replyLanguage, language === "de" ? O.langDe : O.langEn],
+    [O.received, time + " " + O.viennaTime]
   ];
 
   // Draft section, in plain text and HTML
-  const DRAFT_TITLE = "Suggested reply (AI draft, check before sending)";
-  const PLACEHOLDER_NOTE = "Replace the [ ] placeholders with real appointment times before sending.";
+  const DRAFT_TITLE = O.draftTitle;
+  const PLACEHOLDER_NOTE = O.placeholderNote;
   let draftText = "";
   let draftHtml = "";
   if (draft) {
     draftText = "\n\n" + DRAFT_TITLE + "\n" + "-".repeat(DRAFT_TITLE.length) + "\n" + draft +
       "\n\n" + PLACEHOLDER_NOTE +
-      (mailto ? "" : "\n(No customer email was given — use the draft as notes for a phone call.)");
+      (mailto ? "" : "\n(" + O.noEmail + ")");
     draftHtml =
       '<h3 style="margin:28px 0 8px;font-size:16px;color:#0F5C4A">' + escapeHtml(DRAFT_TITLE) + "</h3>" +
       '<div style="padding:14px 16px;background:#f3f6f4;border-left:3px solid #0F5C4A;border-radius:6px;white-space:pre-wrap;line-height:1.5">' +
       escapeHtml(draft) + "</div>" +
       '<p style="margin:8px 0 0;font-size:13px;color:#5a5f5b">' + escapeHtml(PLACEHOLDER_NOTE) + "</p>" +
       (mailto
-        ? '<p style="margin:14px 0 0"><a href="' + escapeHtml(mailto) + '" style="display:inline-block;padding:10px 18px;background:#0F5C4A;color:#ffffff;text-decoration:none;border-radius:999px;font-weight:bold">Reply with this draft</a></p>'
-        : '<p style="margin:10px 0 0;font-size:13px;color:#5a5f5b">No customer email was given — use the draft as notes for a phone call.</p>');
+        ? '<p style="margin:14px 0 0"><a href="' + escapeHtml(mailto) + '" style="display:inline-block;padding:10px 18px;background:#0F5C4A;color:#ffffff;text-decoration:none;border-radius:999px;font-weight:bold">' + escapeHtml(O.replyButton) + "</a></p>"
+        : '<p style="margin:10px 0 0;font-size:13px;color:#5a5f5b">' + escapeHtml(O.noEmail) + "</p>");
   } else if (aiConfigured) {
-    draftText = "\n\n(The AI reply draft could not be created this time.)";
-    draftHtml = '<p style="margin:24px 0 0;font-size:13px;color:#5a5f5b">The AI reply draft could not be created this time.</p>';
+    draftText = "\n\n(" + O.draftFailed + ")";
+    draftHtml = '<p style="margin:24px 0 0;font-size:13px;color:#5a5f5b">' + escapeHtml(O.draftFailed) + "</p>";
   }
 
   // Highlighted banner at the top when the customer wants a callback
-  const callbackNote = "Callback requested — please call the customer" +
-    (phone ? " on " + phone + "." : ". No phone number was given, so reply by email to arrange the call.");
+  const callbackNote = O.callbackNote(phone);
   const bannerText = callback === true ? "*** " + callbackNote + " ***\n\n" : "";
   const bannerHtml = callback === true
     ? '<div style="margin:0 0 18px;padding:12px 16px;background:#fff1c2;border:1px solid #e8c046;border-radius:8px;font-weight:bold;color:#4d3800">' +
@@ -539,16 +600,16 @@ module.exports = async function handler(req, res) {
 
   const text =
     bannerText +
-    "New quote request from the website\n\n" +
+    O.textHeading + "\n\n" +
     rows.map(([k, v, highlight]) => k + ": " + (highlight ? v.toUpperCase() : v)).join("\n") +
-    "\n\nThe estimate is the demo range shown on the website, not a final price." +
+    "\n\n" + O.estimateNote +
     draftText;
 
   const cell = "border-bottom:1px solid #e5e5e0;vertical-align:top;";
   const html =
     '<div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;color:#121412;max-width:560px">' +
     bannerHtml +
-    '<h2 style="margin:0 0 16px;font-size:20px;color:#0F5C4A">New quote request</h2>' +
+    '<h2 style="margin:0 0 16px;font-size:20px;color:#0F5C4A">' + escapeHtml(O.heading) + "</h2>" +
     '<table cellpadding="8" cellspacing="0" style="border-collapse:collapse;width:100%">' +
     rows.map(([k, v, highlight]) => {
       const hl = highlight ? "background:#fff1c2;font-weight:bold;color:#4d3800;" : "";
@@ -556,15 +617,15 @@ module.exports = async function handler(req, res) {
         '</td><td style="' + cell + "white-space:pre-wrap;" + hl + '">' + escapeHtml(v) + "</td></tr>";
     }).join("") +
     "</table>" +
-    '<p style="margin-top:16px;font-size:13px;color:#5a5f5b">The estimate is the demo range shown on the website, not a final price.</p>' +
+    '<p style="margin-top:16px;font-size:13px;color:#5a5f5b">' + escapeHtml(O.estimateNote) + "</p>" +
     draftHtml +
     "</div>";
 
   const payload = {
     from: FROM,
     to: [to],
-    subject: "Quote request: " + ALLOWED.product[data.product] + " — " + name +
-      (callback === true ? " (callback requested)" : ""),
+    subject: O.subject + OL.product[data.product] + " — " + name +
+      (callback === true ? O.subjectCallback : ""),
     text,
     html
   };
