@@ -350,6 +350,38 @@ async function draftReply(f) {
   }
 }
 
+// Messages shown to the visitor, in the form's language
+const MESSAGES = {
+  en: {
+    name: "Please enter your name.",
+    contact: "Please enter a phone number or an email address.",
+    phone: "Please enter a valid phone number.",
+    email: "Please enter a valid email address.",
+    product: "Please choose a product.",
+    material: "Please choose a material.",
+    size: "Please choose a size.",
+    glazing: "Please choose a glazing option.",
+    openings: "The number must be between 1 and 30.",
+    invalid: "Invalid request.",
+    notSetUp: "The form isn't set up yet. Please call us instead.",
+    sendFailed: "We couldn't send your request right now."
+  },
+  de: {
+    name: "Bitte geben Sie Ihren Namen ein.",
+    contact: "Bitte geben Sie eine Telefonnummer oder E-Mail-Adresse an.",
+    phone: "Bitte geben Sie eine gültige Telefonnummer ein.",
+    email: "Bitte geben Sie eine gültige E-Mail-Adresse ein.",
+    product: "Bitte wählen Sie ein Produkt.",
+    material: "Bitte wählen Sie ein Material.",
+    size: "Bitte wählen Sie eine Größe.",
+    glazing: "Bitte wählen Sie eine Verglasung.",
+    openings: "Die Anzahl muss zwischen 1 und 30 liegen.",
+    invalid: "Ungültige Anfrage.",
+    notSetUp: "Das Formular ist noch nicht eingerichtet. Bitte rufen Sie uns an.",
+    sendFailed: "Ihre Anfrage konnte gerade nicht gesendet werden."
+  }
+};
+
 // =========================================================
 // The request handler
 // =========================================================
@@ -366,8 +398,11 @@ module.exports = async function handler(req, res) {
     try { data = JSON.parse(data); } catch { data = null; }
   }
   if (!data || typeof data !== "object") {
-    return reply(res, 400, { ok: false, error: "Invalid request." });
+    return reply(res, 400, { ok: false, error: MESSAGES.en.invalid });
   }
+
+  // Visitor-facing messages follow the form's language ("en" or "de")
+  const M = data.lang === "de" ? MESSAGES.de : MESSAGES.en;
 
   // 3. Honeypot: a hidden field real people never see or fill in.
   //    Bots fill every field, so if it has a value we quietly pretend
@@ -387,15 +422,15 @@ module.exports = async function handler(req, res) {
   const openings = parseInt(data.openings, 10);
 
   const errors = [];
-  if (name.length < 2) errors.push("Please enter your name.");
-  if (!phone && !email) errors.push("Please enter a phone number or an email address.");
-  if (phone && !isPhone(phone)) errors.push("Please enter a valid phone number.");
-  if (email && !isEmail(email)) errors.push("Please enter a valid email address.");
-  if (!ALLOWED.product[data.product]) errors.push("Please choose a product.");
+  if (name.length < 2) errors.push(M.name);
+  if (!phone && !email) errors.push(M.contact);
+  if (phone && !isPhone(phone)) errors.push(M.phone);
+  if (email && !isEmail(email)) errors.push(M.email);
+  if (!ALLOWED.product[data.product]) errors.push(M.product);
   ["material", "size", "glazing"].forEach((key) => {
-    if (!ALLOWED[key][data[key]]) errors.push("Please choose a " + key + ".");
+    if (!ALLOWED[key][data[key]]) errors.push(M[key]);
   });
-  if (!Number.isInteger(openings) || openings < 1 || openings > 30) errors.push("Number of openings must be 1–30.");
+  if (!Number.isInteger(openings) || openings < 1 || openings > 30) errors.push(M.openings);
 
   if (errors.length) {
     return reply(res, 400, { ok: false, error: errors.join(" ") });
@@ -406,7 +441,7 @@ module.exports = async function handler(req, res) {
   const to = process.env.QUOTE_TO_EMAIL;
   if (!apiKey || !to) {
     console.error("Missing RESEND_API_KEY or QUOTE_TO_EMAIL environment variable.");
-    return reply(res, 500, { ok: false, error: "The form isn't set up yet. Please call us instead." });
+    return reply(res, 500, { ok: false, error: M.notSetUp });
   }
 
   // 6. AI reply draft (optional — the lead is emailed even if this fails)
@@ -550,12 +585,12 @@ module.exports = async function handler(req, res) {
     if (!r.ok) {
       const detail = await r.text();
       console.error("Resend error", r.status, detail);   // visible in Vercel logs, not to visitors
-      return reply(res, 502, { ok: false, error: "We couldn't send your request right now." });
+      return reply(res, 502, { ok: false, error: M.sendFailed });
     }
 
     return reply(res, 200, { ok: true });
   } catch (err) {
     console.error("Network error calling Resend", err);
-    return reply(res, 502, { ok: false, error: "We couldn't send your request right now." });
+    return reply(res, 502, { ok: false, error: M.sendFailed });
   }
 };

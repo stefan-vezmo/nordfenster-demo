@@ -13,23 +13,36 @@
 </head>
 <body>
 
+<!--
+  Translations: every text below has a key (data-i18n / data-i18n-html /
+  data-i18n-attr). The English here is the fallback; both languages live
+  in i18n.js.
+-->
+
 <div class="page">
 
   <!-- ================= NAV (a floating panel) ================= -->
   <header class="nav panel" id="nav">
-    <a href="#top" class="logo" aria-label="Nordfenster, back to top">
+    <a href="#top" class="logo" aria-label="Nordfenster, back to top" data-i18n-attr="aria-label:nav.home">
       <span class="logo-mark" aria-hidden="true"></span>
       <span>Nord<span class="accent">fenster</span></span>
     </a>
 
-    <nav class="nav-links" id="nav-links" aria-label="Main">
-      <a href="#products">Products</a>
-      <a href="#estimate">Estimate</a>
-      <a href="#process">How it works</a>
-      <a href="#faq">FAQ</a>
+    <nav class="nav-links" id="nav-links" aria-label="Main" data-i18n-attr="aria-label:nav.main">
+      <a href="#products" data-i18n="nav.products">Products</a>
+      <a href="#estimate" data-i18n="nav.estimate">Estimate</a>
+      <a href="#process" data-i18n="nav.process">How it works</a>
+      <a href="#faq" data-i18n="nav.faq">FAQ</a>
     </nav>
 
-    <a href="#estimate" class="btn btn-primary btn-sm nav-cta">Get your estimate</a>
+    <!-- Language switch -->
+    <div class="lang-switch" role="group" aria-label="Language" data-i18n-attr="aria-label:lang.group">
+      <button type="button" data-lang="en" aria-pressed="true" lang="en">EN</button>
+      <span aria-hidden="true">|</span>
+      <button type="button" data-lang="de" aria-pressed="false" lang="de">DE</button>
+    </div>
+
+    <a href="#estimate" class="btn btn-primary btn-sm nav-cta" data-i18n="nav.cta">Get your estimate</a>
 
     <button class="menu-btn" id="menu-btn" aria-expanded="false" aria-controls="nav-links">
       <span class="menu-btn-text">Menu</span>
@@ -40,12 +53,12 @@
   <section class="panel hero" id="top">
     <div class="hero-grid">
       <div class="hero-copy">
-        <p class="label">ALU &amp; PVC · Graz</p>
-        <h1 class="display" id="hero-title">Windows that keep the <span class="accent">weather</span> out.</h1>
-        <p class="lead">Made to measure and installed by our own team — so your home stays warm, quiet and dry.</p>
+        <p class="label" data-i18n="hero.label">ALU &amp; PVC · Graz</p>
+        <h1 class="display" id="hero-title" data-i18n-html="hero.title">Windows that keep the <span class="accent">weather</span> out.</h1>
+        <p class="lead" data-i18n="hero.lead">Made to measure and installed by our own team — so your home stays warm, quiet and dry.</p>
         <div class="actions">
-          <a href="#estimate" class="btn btn-primary">Get your estimate</a>
-          <a href="#process" class="text-link">How it works <span aria-hidden="true">→</span></a>
+          <a href="#estimate" class="btn btn-primary" data-i18n="hero.cta">Get your estimate</a>
+          <a href="#process" class="text-link"><span data-i18n="hero.how">How it works</span> <span class="arrow" aria-hidden="true">→</span></a>
         </div>
       </div>
 
@@ -57,7 +70,7 @@
                     https://images.unsplash.com/photo-1591474200742-8e512e6f98f8?auto=format&fit=crop&w=1000&h=1250&q=75 1000w,
                     https://images.unsplash.com/photo-1591474200742-8e512e6f98f8?auto=format&fit=crop&w=1400&h=1750&q=75 1400w"
             sizes="(min-width: 900px) 45vw, 100vw"
-            alt="Modern house with large dark-framed corner windows"
+            alt="Modern house with large dark-framed corner windows" data-i18n-attr="alt:hero.alt"
             fetchpriority="high">
         </div>
 
@@ -67,7 +80,7 @@
             <span class="glass-icon" aria-hidden="true">
               <svg viewBox="0 0 24 24"><rect x="2.5" y="8" width="19" height="8" rx="1.5"/><path d="M6.5 8v3M10 8v4.5M13.5 8v3M17 8v4.5"/></svg>
             </span>
-            <span>Free measuring visit</span>
+            <span data-i18n="glass.measure">Free measuring visit</span>
           </div>
         </div>
         <div class="glass-pos glass-b">
@@ -75,58 +88,58 @@
             <span class="glass-icon" aria-hidden="true">
               <svg viewBox="0 0 24 24"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4M10 12h5M10 16h5"/></svg>
             </span>
-            <span>Written offer in 48h</span>
+            <span data-i18n="glass.offer">Written offer in 48h</span>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Service pills -->
-    <ul class="chips" aria-label="Services">
-      <li>PVC windows</li>
-      <li>ALU windows</li>
-      <li>Entrance doors</li>
-      <li>Balcony doors</li>
-      <li>Sliding systems</li>
-      <li>Window replacement</li>
-      <li>Measuring &amp; installation</li>
+    <ul class="chips" aria-label="Services" data-i18n-attr="aria-label:chips.aria">
+      <li data-i18n="chips.1">PVC windows</li>
+      <li data-i18n="chips.2">ALU windows</li>
+      <li data-i18n="chips.3">Entrance doors</li>
+      <li data-i18n="chips.4">Balcony doors</li>
+      <li data-i18n="chips.5">Sliding systems</li>
+      <li data-i18n="chips.6">Window replacement</li>
+      <li data-i18n="chips.7">Measuring &amp; installation</li>
     </ul>
   </section>
 
   <!-- ================= PRODUCTS (bento grid) ================= -->
   <section class="panel reveal" id="products">
     <div class="section-head">
-      <p class="label">Products</p>
-      <h2 class="display">Made for every <span class="accent">opening</span>.</h2>
+      <p class="label" data-i18n="products.label">Products</p>
+      <h2 class="display" data-i18n-html="products.title">Made for every <span class="accent">opening</span>.</h2>
     </div>
 
     <div class="bento">
       <a href="#estimate" class="bento-tile tile-large" data-product="windows">
         <img src="https://images.unsplash.com/photo-1783125127143-d4e18726bab3?auto=format&fit=crop&w=1200&h=1200&q=75"
-             alt="White modern house with a tall dark-framed window" loading="lazy">
-        <span class="tile-title">Windows</span>
-        <span class="tile-sub">PVC &amp; ALU · double or triple glazed</span>
+             alt="White modern house with a tall dark-framed window" data-i18n-attr="alt:alt.windows" loading="lazy">
+        <span class="tile-title" data-i18n="product.windows">Windows</span>
+        <span class="tile-sub" data-i18n="tile.windowsSub">PVC &amp; ALU · double or triple glazed</span>
         <span class="tile-go" aria-hidden="true">→</span>
       </a>
       <a href="#estimate" class="bento-tile" data-product="doors">
         <img src="https://images.unsplash.com/photo-1613544723301-176686aa9f09?auto=format&fit=crop&w=800&h=640&q=75"
-             alt="Grey modern double entrance door with glass inserts" loading="lazy">
-        <span class="tile-title">Doors</span>
-        <span class="tile-sub">Entrance &amp; balcony</span>
+             alt="Grey modern double entrance door with glass inserts" data-i18n-attr="alt:alt.doors" loading="lazy">
+        <span class="tile-title" data-i18n="product.doors">Doors</span>
+        <span class="tile-sub" data-i18n="tile.doorsSub">Entrance &amp; balcony</span>
         <span class="tile-go" aria-hidden="true">→</span>
       </a>
       <a href="#estimate" class="bento-tile" data-product="sliding">
         <img src="https://images.unsplash.com/photo-1721902024148-287438cf3e05?auto=format&fit=crop&w=800&h=640&q=75"
-             alt="Bright room with a large sliding glass door to a balcony" loading="lazy">
-        <span class="tile-title">Sliding systems</span>
-        <span class="tile-sub">Wide openings, slim frames</span>
+             alt="Bright room with a large sliding glass door to a balcony" data-i18n-attr="alt:alt.sliding" loading="lazy">
+        <span class="tile-title" data-i18n="product.sliding">Sliding systems</span>
+        <span class="tile-sub" data-i18n="tile.slidingSub">Wide openings, slim frames</span>
         <span class="tile-go" aria-hidden="true">→</span>
       </a>
       <a href="#estimate" class="bento-tile tile-wide" data-product="windows">
         <img src="https://images.unsplash.com/photo-1754063257992-bb9eabdbdd86?auto=format&fit=crop&w=1400&h=600&q=75"
-             alt="House extension with new white windows and patio doors" loading="lazy">
-        <span class="tile-title">Window replacement</span>
-        <span class="tile-sub">Old frames out, new ones in — one visit from our team</span>
+             alt="House extension with new white windows and patio doors" data-i18n-attr="alt:alt.replacement" loading="lazy">
+        <span class="tile-title" data-i18n="tile.replacement">Window replacement</span>
+        <span class="tile-sub" data-i18n="tile.replacementSub">Old frames out, new ones in — one visit from our team</span>
         <span class="tile-go" aria-hidden="true">→</span>
       </a>
     </div>
@@ -135,33 +148,33 @@
   <!-- ================= INSTANT ESTIMATE CONFIGURATOR ================= -->
   <section class="panel reveal" id="estimate">
     <div class="section-head">
-      <p class="label">Instant estimate</p>
-      <h2 class="display">Your <span class="accent">estimate</span>, live.</h2>
-      <p class="lead">We have filled in a typical starting point. Change any option and the range updates instantly.</p>
+      <p class="label" data-i18n="estimate.label">Instant estimate</p>
+      <h2 class="display" data-i18n-html="estimate.title">Your <span class="accent">estimate</span>, live.</h2>
+      <p class="lead" data-i18n="estimate.lead">We have filled in a typical starting point. Change any option and the range updates instantly.</p>
     </div>
 
     <form class="config" id="estimate-form" novalidate>
 
       <!-- Step 1: product -->
       <fieldset class="step" id="step-1">
-        <legend class="step-title"><span class="step-no">1</span>Choose a product</legend>
+        <legend class="step-title"><span class="step-no">1</span><span data-i18n="step1.title">Choose a product</span></legend>
         <div class="tiles">
           <label class="choice-tile">
             <input type="radio" name="product" value="windows" checked>
-            <span class="choice-img"><img src="https://images.unsplash.com/photo-1783125127143-d4e18726bab3?auto=format&fit=crop&w=600&h=450&q=70" alt="Windows: modern white house with a tall, dark-framed corner window" loading="lazy"></span>
-            <span class="choice-name">Windows</span>
+            <span class="choice-img"><img src="https://images.unsplash.com/photo-1783125127143-d4e18726bab3?auto=format&fit=crop&w=600&h=450&q=70" alt="Windows: modern white house with a tall, dark-framed corner window" data-i18n-attr="alt:alt.choiceWindows" loading="lazy"></span>
+            <span class="choice-name" data-i18n="product.windows">Windows</span>
             <span class="choice-check" aria-hidden="true"></span>
           </label>
           <label class="choice-tile">
             <input type="radio" name="product" value="doors">
-            <span class="choice-img"><img src="https://images.unsplash.com/photo-1613544723301-176686aa9f09?auto=format&fit=crop&w=600&h=450&q=70" alt="Doors: grey modern double entrance door with frosted glass inserts" loading="lazy"></span>
-            <span class="choice-name">Doors</span>
+            <span class="choice-img"><img src="https://images.unsplash.com/photo-1613544723301-176686aa9f09?auto=format&fit=crop&w=600&h=450&q=70" alt="Doors: grey modern double entrance door with frosted glass inserts" data-i18n-attr="alt:alt.choiceDoors" loading="lazy"></span>
+            <span class="choice-name" data-i18n="product.doors">Doors</span>
             <span class="choice-check" aria-hidden="true"></span>
           </label>
           <label class="choice-tile">
             <input type="radio" name="product" value="sliding">
-            <span class="choice-img"><img src="https://images.unsplash.com/photo-1721902024148-287438cf3e05?auto=format&fit=crop&w=600&h=450&q=70" alt="Sliding systems: large sliding glass door opening onto a balcony" loading="lazy"></span>
-            <span class="choice-name">Sliding systems</span>
+            <span class="choice-img"><img src="https://images.unsplash.com/photo-1721902024148-287438cf3e05?auto=format&fit=crop&w=600&h=450&q=70" alt="Sliding systems: large sliding glass door opening onto a balcony" data-i18n-attr="alt:alt.choiceSliding" loading="lazy"></span>
+            <span class="choice-name" data-i18n="product.sliding">Sliding systems</span>
             <span class="choice-check" aria-hidden="true"></span>
           </label>
         </div>
@@ -170,99 +183,99 @@
 
       <!-- Step 2: specification -->
       <fieldset class="step" id="step-2">
-        <legend class="step-title"><span class="step-no">2</span>Tell us a little more</legend>
+        <legend class="step-title"><span class="step-no">2</span><span data-i18n="step2.title">Tell us a little more</span></legend>
 
         <div class="opt">
-          <span class="opt-label" id="lbl-material">Material</span>
+          <span class="opt-label" id="lbl-material" data-i18n="opt.material">Material</span>
           <div class="pills" role="radiogroup" aria-labelledby="lbl-material">
-            <label class="pill"><input type="radio" name="material" value="pvc" checked><span>PVC</span></label>
-            <label class="pill"><input type="radio" name="material" value="alu"><span>ALU</span></label>
+            <label class="pill"><input type="radio" name="material" value="pvc" checked><span data-i18n="material.pvc">PVC</span></label>
+            <label class="pill"><input type="radio" name="material" value="alu"><span data-i18n="material.alu">ALU</span></label>
           </div>
         </div>
 
         <div class="opt">
-          <span class="opt-label" id="lbl-openings">Number of openings</span>
+          <span class="opt-label" id="lbl-openings" data-i18n="opt.openings">Number of openings</span>
           <div class="stepper" role="group" aria-labelledby="lbl-openings">
-            <button type="button" class="stepper-btn" data-step="-1" aria-label="Fewer openings">−</button>
+            <button type="button" class="stepper-btn" data-step="-1" aria-label="Fewer openings" data-i18n-attr="aria-label:openings.fewer">−</button>
             <output class="stepper-value" id="openings-out" aria-live="polite">1</output>
-            <button type="button" class="stepper-btn" data-step="1" aria-label="More openings">+</button>
+            <button type="button" class="stepper-btn" data-step="1" aria-label="More openings" data-i18n-attr="aria-label:openings.more">+</button>
             <input type="hidden" name="openings" id="openings" value="1">
           </div>
         </div>
 
         <div class="opt">
-          <span class="opt-label" id="lbl-size">Size of each opening</span>
+          <span class="opt-label" id="lbl-size" data-i18n="opt.size">Size of each opening</span>
           <div class="pills" role="radiogroup" aria-labelledby="lbl-size">
-            <label class="pill"><input type="radio" name="size" value="small"><span>Small <small>up to 1 m²</small></span></label>
-            <label class="pill"><input type="radio" name="size" value="medium" checked><span>Medium <small>1–2 m²</small></span></label>
-            <label class="pill"><input type="radio" name="size" value="large"><span>Large <small>over 2 m²</small></span></label>
+            <label class="pill"><input type="radio" name="size" value="small"><span data-i18n-html="size.smallPill">Small <small>up to 1 m²</small></span></label>
+            <label class="pill"><input type="radio" name="size" value="medium" checked><span data-i18n-html="size.mediumPill">Medium <small>1–2 m²</small></span></label>
+            <label class="pill"><input type="radio" name="size" value="large"><span data-i18n-html="size.largePill">Large <small>over 2 m²</small></span></label>
           </div>
         </div>
 
         <div class="opt">
-          <span class="opt-label" id="lbl-glazing">Glazing</span>
+          <span class="opt-label" id="lbl-glazing" data-i18n="opt.glazing">Glazing</span>
           <div class="pills" role="radiogroup" aria-labelledby="lbl-glazing">
-            <label class="pill"><input type="radio" name="glazing" value="double" checked><span>Double</span></label>
-            <label class="pill"><input type="radio" name="glazing" value="triple"><span>Triple</span></label>
+            <label class="pill"><input type="radio" name="glazing" value="double" checked><span data-i18n="glazing.double">Double</span></label>
+            <label class="pill"><input type="radio" name="glazing" value="triple"><span data-i18n="glazing.triple">Triple</span></label>
           </div>
         </div>
-        <p class="opt-hint">Not sure? Keep the defaults — we'll advise at the free measuring visit.</p>
+        <p class="opt-hint" data-i18n="opt.hint">Not sure? Keep the defaults — we'll advise at the free measuring visit.</p>
       </fieldset>
 
       <!-- Live summary (side panel on desktop, between steps 2 and 3 on mobile) -->
-      <aside class="summary" aria-label="Your estimate">
+      <aside class="summary" aria-label="Your estimate" data-i18n-attr="aria-label:summary.aria">
         <div class="summary-top">
           <div class="ring" id="ring">
             <svg viewBox="0 0 120 120" aria-hidden="true">
               <circle class="ring-bg" cx="60" cy="60" r="52"/>
               <circle class="ring-fg" id="ring-fg" cx="60" cy="60" r="52"/>
             </svg>
-            <div class="ring-text"><strong id="ring-pct">0%</strong><span>complete</span></div>
+            <div class="ring-text"><strong id="ring-pct">0%</strong><span data-i18n="summary.complete">complete</span></div>
           </div>
           <div>
-            <p class="summary-label">Estimated range</p>
+            <p class="summary-label" data-i18n="summary.label">Estimated range</p>
             <p class="range" id="range">€— – €—</p>
             <p class="range-hint" id="range-hint">Choose a product to see a range.</p>
           </div>
         </div>
 
         <dl class="summary-list">
-          <div><dt>Product</dt><dd id="sum-product">—</dd></div>
-          <div><dt>Material</dt><dd id="sum-material">—</dd></div>
-          <div><dt>Openings</dt><dd id="sum-openings">1</dd></div>
-          <div><dt>Size</dt><dd id="sum-size">—</dd></div>
-          <div><dt>Glazing</dt><dd id="sum-glazing">—</dd></div>
+          <div><dt data-i18n="sum.product">Product</dt><dd id="sum-product">—</dd></div>
+          <div><dt data-i18n="sum.material">Material</dt><dd id="sum-material">—</dd></div>
+          <div><dt data-i18n="sum.openings">Openings</dt><dd id="sum-openings">1</dd></div>
+          <div><dt data-i18n="sum.size">Size</dt><dd id="sum-size">—</dd></div>
+          <div><dt data-i18n="sum.glazing">Glazing</dt><dd id="sum-glazing">—</dd></div>
         </dl>
 
-        <p class="demo-note">Demo pricing. Final offer after free measuring.</p>
+        <p class="demo-note" data-i18n="summary.demo">Demo pricing. Final offer after free measuring.</p>
       </aside>
 
       <!-- Step 3: contact -->
       <fieldset class="step" id="step-3">
-        <legend class="step-title"><span class="step-no">3</span>Where should we send it?</legend>
+        <legend class="step-title"><span class="step-no">3</span><span data-i18n="step3.title">Where should we send it?</span></legend>
         <div class="fields">
           <div class="field field-full">
-            <label for="name">Name</label>
+            <label for="name" data-i18n="field.name">Name</label>
             <input type="text" id="name" name="name" autocomplete="name" maxlength="100" required>
             <p class="field-error" data-error-for="name" aria-live="polite"></p>
           </div>
           <div class="field">
-            <label for="phone">Phone</label>
+            <label for="phone" data-i18n="field.phone">Phone</label>
             <input type="tel" id="phone" name="phone" autocomplete="tel" inputmode="tel" maxlength="40" aria-describedby="contact-hint">
             <p class="field-error" data-error-for="phone" aria-live="polite"></p>
           </div>
           <div class="field">
-            <label for="email">Email</label>
+            <label for="email" data-i18n="field.email">Email</label>
             <input type="email" id="email" name="email" autocomplete="email" maxlength="200" aria-describedby="contact-hint">
             <p class="field-error" data-error-for="email" aria-live="polite"></p>
           </div>
-          <p class="field-hint field-full" id="contact-hint">A phone number or an email is enough — whichever you prefer.</p>
+          <p class="field-hint field-full" id="contact-hint" data-i18n="field.hint">A phone number or an email is enough — whichever you prefer.</p>
           <div class="field field-full">
-            <label for="message">Message <span class="optional">(optional)</span></label>
-            <textarea id="message" name="message" rows="3" maxlength="2000" placeholder="Anything we should know — timing, access, questions…"></textarea>
+            <label for="message" data-i18n-html="field.message">Message <span class="optional">(optional)</span></label>
+            <textarea id="message" name="message" rows="3" maxlength="2000" placeholder="Anything we should know — timing, access, questions…" data-i18n-attr="placeholder:field.messagePlaceholder"></textarea>
           </div>
 
-          <!-- Page language, filled in by script.js from <html lang>; used to pick the reply language -->
+          <!-- Page language ("en" or "de"), kept in sync by i18n.js; used to pick the reply language -->
           <input type="hidden" name="lang" id="lang" value="en">
 
           <!-- Honeypot: hidden from people, but spam bots fill it in. Must stay empty. -->
@@ -275,7 +288,7 @@
           <span class="spinner" aria-hidden="true"></span>
           <span class="btn-label">Send request</span>
         </button>
-        <p class="form-success" id="form-success" role="status" hidden>
+        <p class="form-success" id="form-success" role="status" data-i18n="form.success" hidden>
           Thanks! We'll contact you within 48h.
         </p>
         <p class="form-error" id="form-fail" role="alert" hidden></p>
@@ -287,38 +300,38 @@
   <!-- ================= BEFORE / AFTER ================= -->
   <section class="panel reveal" id="before-after">
     <div class="section-head">
-      <p class="label">Before &amp; after</p>
-      <h2 class="display">Old out, <span class="accent">new</span> in.</h2>
-      <p class="lead">Drag the handle to compare a worn-out window with a new one.</p>
+      <p class="label" data-i18n="ba.label">Before &amp; after</p>
+      <h2 class="display" data-i18n-html="ba.title">Old out, <span class="accent">new</span> in.</h2>
+      <p class="lead" data-i18n="ba.lead">Drag the handle to compare a worn-out window with a new one.</p>
     </div>
 
     <div class="ba" id="ba">
       <img class="ba-img" src="https://images.unsplash.com/photo-1788204997156-72d623841c2b?auto=format&fit=crop&crop=focalpoint&fp-x=0.43&fp-y=0.49&fp-z=1.13&w=1600&h=900&q=75"
-           alt="After: a clean new white window in a plastered wall" loading="lazy">
+           alt="After: a clean new white window in a plastered wall" data-i18n-attr="alt:ba.altAfter" loading="lazy">
       <div class="ba-before">
         <img class="ba-img" src="https://images.unsplash.com/photo-1587729042088-a8034bffd61a?auto=format&fit=crop&crop=focalpoint&fp-x=0.5&fp-y=0.47&fp-z=1.1&w=1600&h=900&q=75"
-             alt="Before: an old window with peeling paint and worn shutters" loading="lazy">
+             alt="Before: an old window with peeling paint and worn shutters" data-i18n-attr="alt:ba.altBefore" loading="lazy">
       </div>
       <div class="ba-line" aria-hidden="true"><span class="ba-knob">‹ ›</span></div>
-      <span class="ba-tag ba-tag-before">Before</span>
-      <span class="ba-tag ba-tag-after">After</span>
+      <span class="ba-tag ba-tag-before" data-i18n="ba.before">Before</span>
+      <span class="ba-tag ba-tag-after" data-i18n="ba.after">After</span>
       <input type="range" class="ba-range" id="ba-range" min="0" max="100" value="50"
-             aria-label="Drag to compare before and after">
+             aria-label="Drag to compare before and after" data-i18n-attr="aria-label:ba.aria">
     </div>
-    <p class="caption">Example photos of two different buildings, for illustration only.</p>
+    <p class="caption" data-i18n="ba.caption">Example photos of two different buildings, for illustration only.</p>
   </section>
 
   <!-- ================= HOW IT WORKS (dark) ================= -->
   <section class="panel panel-dark reveal" id="process">
     <div class="section-head">
-      <p class="label">How it works</p>
-      <h2 class="display">Four steps, <span class="accent">one</span> team.</h2>
+      <p class="label" data-i18n="process.label">How it works</p>
+      <h2 class="display" data-i18n-html="process.title">Four steps, <span class="accent">one</span> team.</h2>
     </div>
     <ol class="steps">
-      <li><span class="step-num">01</span><h3>Request</h3><p>Use the estimate above or call us. A rough idea is enough.</p></li>
-      <li><span class="step-num">02</span><h3>Measuring</h3><p>We visit, measure every opening and help you choose. Free.</p></li>
-      <li><span class="step-num">03</span><h3>Offer</h3><p>A clear, written offer within 48 hours. No obligation.</p></li>
-      <li><span class="step-num">04</span><h3>Installation</h3><p>Our own team fits, seals and cleans up after itself.</p></li>
+      <li><span class="step-num">01</span><h3 data-i18n="s1.title">Request</h3><p data-i18n="s1.text">Use the estimate above or call us. A rough idea is enough.</p></li>
+      <li><span class="step-num">02</span><h3 data-i18n="s2.title">Measuring</h3><p data-i18n="s2.text">We visit, measure every opening and help you choose. Free.</p></li>
+      <li><span class="step-num">03</span><h3 data-i18n="s3.title">Offer</h3><p data-i18n="s3.text">A clear, written offer within 48 hours. No obligation.</p></li>
+      <li><span class="step-num">04</span><h3 data-i18n="s4.title">Installation</h3><p data-i18n="s4.text">Our own team fits, seals and cleans up after itself.</p></li>
     </ol>
   </section>
 
@@ -326,29 +339,29 @@
   <section class="panel reveal" id="faq">
     <div class="faq-grid">
       <div class="section-head">
-        <p class="label">FAQ</p>
-        <h2 class="display">Good to <span class="accent">know</span>.</h2>
+        <p class="label" data-i18n="faq.label">FAQ</p>
+        <h2 class="display" data-i18n-html="faq.title">Good to <span class="accent">know</span>.</h2>
       </div>
       <div class="faq-list">
         <details name="faq">
-          <summary>Is the measuring visit really free?</summary>
-          <div class="faq-body"><p>Yes. We come to you, measure every opening and talk through the options. There is no obligation to order.</p></div>
+          <summary data-i18n="faq.q1">Is the measuring visit really free?</summary>
+          <div class="faq-body"><p data-i18n="faq.a1">Yes. We come to you, measure every opening and talk through the options. There is no obligation to order.</p></div>
         </details>
         <details name="faq">
-          <summary>How soon will I get an offer?</summary>
-          <div class="faq-body"><p>You get a written offer within 48 hours of the measuring visit.</p></div>
+          <summary data-i18n="faq.q2">How soon will I get an offer?</summary>
+          <div class="faq-body"><p data-i18n="faq.a2">You get a written offer within 48 hours of the measuring visit.</p></div>
         </details>
         <details name="faq">
-          <summary>PVC or aluminium — which should I choose?</summary>
-          <div class="faq-body"><p>PVC insulates well and usually costs less. Aluminium allows slimmer frames and larger panes, which is why it's often chosen for sliding systems and big glazing. We'll help you decide at the visit.</p></div>
+          <summary data-i18n="faq.q3">PVC or aluminium — which should I choose?</summary>
+          <div class="faq-body"><p data-i18n="faq.a3">PVC insulates well and usually costs less. Aluminium allows slimmer frames and larger panes, which is why it's often chosen for sliding systems and big glazing. We'll help you decide at the visit.</p></div>
         </details>
         <details name="faq">
-          <summary>Do you remove the old windows?</summary>
-          <div class="faq-body"><p>Yes — removing the old frames can be included in your offer, and our team does it as part of the installation.</p></div>
+          <summary data-i18n="faq.q4">Do you remove the old windows?</summary>
+          <div class="faq-body"><p data-i18n="faq.a4">Yes — removing the old frames can be included in your offer, and our team does it as part of the installation.</p></div>
         </details>
         <details name="faq">
-          <summary>Is the online estimate the final price?</summary>
-          <div class="faq-body"><p>No. It's a rough demo range to give you an idea. The final price comes in the written offer after the free measuring visit.</p></div>
+          <summary data-i18n="faq.q5">Is the online estimate the final price?</summary>
+          <div class="faq-body"><p data-i18n="faq.a5">No. It's a rough demo range to give you an idea. The final price comes in the written offer after the free measuring visit.</p></div>
         </details>
       </div>
     </div>
@@ -358,62 +371,64 @@
   <footer class="panel panel-dark footer reveal" id="contact">
     <div class="footer-top">
       <p class="footer-word">Nord<span class="accent">fenster</span></p>
-      <a href="#estimate" class="btn btn-light">Get your estimate</a>
+      <a href="#estimate" class="btn btn-light" data-i18n="footer.cta">Get your estimate</a>
     </div>
 
     <div class="footer-grid">
       <div>
-        <h2 class="footer-title">Contact <span class="demo-tag">Demo data</span></h2>
+        <h2 class="footer-title"><span data-i18n="footer.contact">Contact</span> <span class="demo-tag" data-i18n="footer.demo">Demo data</span></h2>
         <dl class="footer-contact">
-          <div><dt>Phone</dt><dd>+43 316 000 000</dd></div>
-          <div><dt>Email</dt><dd>info@nordfenster.example</dd></div>
-          <div><dt>Address</dt><dd>Musterstraße 1, 8010 Graz</dd></div>
+          <div><dt data-i18n="footer.phone">Phone</dt><dd>+43 316 000 000</dd></div>
+          <div><dt data-i18n="footer.email">Email</dt><dd>info@nordfenster.example</dd></div>
+          <div><dt data-i18n="footer.address">Address</dt><dd>Musterstraße 1, 8010 Graz</dd></div>
         </dl>
-        <p class="footer-note">Placeholder details — Nordfenster is a fictional company.</p>
+        <p class="footer-note" data-i18n="footer.note">Placeholder details — Nordfenster is a fictional company.</p>
       </div>
 
       <div>
-        <h2 class="footer-title">Explore</h2>
+        <h2 class="footer-title" data-i18n="footer.explore">Explore</h2>
         <ul class="footer-links">
-          <li><a href="#products">Products</a></li>
-          <li><a href="#estimate">Instant estimate</a></li>
-          <li><a href="#process">How it works</a></li>
-          <li><a href="#faq">FAQ</a></li>
+          <li><a href="#products" data-i18n="nav.products">Products</a></li>
+          <li><a href="#estimate" data-i18n="footer.estimate">Instant estimate</a></li>
+          <li><a href="#process" data-i18n="nav.process">How it works</a></li>
+          <li><a href="#faq" data-i18n="nav.faq">FAQ</a></li>
         </ul>
       </div>
 
       <div>
-        <h2 class="footer-title">Photos</h2>
+        <h2 class="footer-title" data-i18n="footer.photos">Photos</h2>
         <p class="footer-credits">
-          From <a href="https://unsplash.com" target="_blank" rel="noopener">Unsplash</a>, by
+          <span data-i18n="credits.from">From</span> <a href="https://unsplash.com" target="_blank" rel="noopener">Unsplash</a><span data-i18n="credits.by">, by</span>
           <a href="https://unsplash.com/@naomi_ruth" target="_blank" rel="noopener">Naomi Ellsworth</a>,
           <a href="https://unsplash.com/@salvomedia" target="_blank" rel="noopener">Salvo Media LLC</a>,
           <a href="https://unsplash.com/@zacgudakov" target="_blank" rel="noopener">Zac Gudakov</a>,
           <a href="https://unsplash.com/@lisaanna195" target="_blank" rel="noopener">Lisa Anna</a>,
           <a href="https://unsplash.com/@brett_jordan" target="_blank" rel="noopener">Brett Jordan</a>,
-          <a href="https://unsplash.com/@lookinout" target="_blank" rel="noopener">Olga Bi</a> and
+          <a href="https://unsplash.com/@lookinout" target="_blank" rel="noopener">Olga Bi</a> <span data-i18n="credits.and">and</span>
           <a href="https://unsplash.com/@pawel_czerwinski" target="_blank" rel="noopener">Pawel Czerwinski</a>.
         </p>
       </div>
     </div>
 
-    <p class="footer-bottom">© <span id="year">2026</span> Nordfenster · Demo website</p>
+    <p class="footer-bottom">© <span id="year">2026</span> Nordfenster · <span data-i18n="footer.demoSite">Demo website</span></p>
   </footer>
 
 </div>
 
 <!-- ================= MOBILE BOTTOM BAR ================= -->
-<div class="mobile-bar" id="mobile-bar" aria-label="Quick actions">
+<div class="mobile-bar" id="mobile-bar" aria-label="Quick actions" data-i18n-attr="aria-label:mobile.aria">
   <a href="tel:+43316000000" class="mobile-bar-call">
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg>
-    Call
+    <span data-i18n="mobile.call">Call</span>
   </a>
-  <a href="#estimate" class="mobile-bar-cta">Get estimate</a>
+  <a href="#estimate" class="mobile-bar-cta" data-i18n="mobile.cta">Get estimate</a>
 </div>
 
 <!-- GSAP animation library + ScrollTrigger plugin (from jsDelivr CDN) -->
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<!-- Translations (EN / DE) — must load before script.js -->
+<script src="i18n.js"></script>
 <script src="script.js"></script>
 </body>
 </html>

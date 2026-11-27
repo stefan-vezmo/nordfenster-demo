@@ -48,6 +48,8 @@ const DEMO_PRICING = {
 
   const $ = (sel, root = document) => root.querySelector(sel);
   const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
+  // Translated text from i18n.js (falls back to the key if i18n.js is missing)
+  const T = (key, vars) => (window.i18n ? window.i18n.t(key, vars) : key);
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
   const hasGsap = typeof window.gsap !== "undefined";
 
@@ -63,7 +65,7 @@ const DEMO_PRICING = {
   function setMenu(open) {
     navLinks.classList.toggle("is-open", open);
     menuBtn.setAttribute("aria-expanded", String(open));
-    $(".menu-btn-text", menuBtn).textContent = open ? "Close" : "Menu";
+    $(".menu-btn-text", menuBtn).textContent = T(open ? "nav.close" : "nav.menu");
   }
   menuBtn.addEventListener("click", () => setMenu(!navLinks.classList.contains("is-open")));
   navLinks.addEventListener("click", (e) => { if (e.target.tagName === "A") setMenu(false); });
@@ -121,7 +123,12 @@ const DEMO_PRICING = {
     };
   }
 
-  const money = (n) => DEMO_PRICING.currency + Math.round(n).toLocaleString("en-US");
+  // English: "€1,480"  ·  German: "€ 1.480" (dot for thousands, as on Austrian offers)
+  const money = (n) => {
+    const de = window.i18n && window.i18n.lang === "de";
+    const num = Math.round(n).toLocaleString(de ? "de-DE" : "en-US");
+    return DEMO_PRICING.currency + (de ? "\u00a0" : "") + num;
+  };
   const writeRange = (v) => { rangeEl.textContent = money(v.low) + " – " + money(v.high); };
 
   // The numbers that are currently on screen (animated towards the new values)
@@ -133,22 +140,20 @@ const DEMO_PRICING = {
     const r = computeRange(s);
 
     // Summary list
-    $("#sum-product").textContent = s.product ? DEMO_PRICING.products[s.product].label : "—";
+    $("#sum-product").textContent = s.product ? T("product." + s.product) : "—";
     OPTION_GROUPS.forEach((g) => {
-      $("#sum-" + g).textContent = s[g] ? DEMO_PRICING[g][s[g]].label : "—";
+      $("#sum-" + g).textContent = s[g] ? T(g + "." + s[g]) : "—";
     });
     $("#sum-openings").textContent = s.openings;
 
     if (!r) {
       rangeEl.textContent = "€— – €—";
-      rangeHint.textContent = "Choose a product to see a range.";
+      rangeHint.textContent = T("summary.hintChoose");
       return;
     }
 
     const missing = OPTION_GROUPS.filter((g) => !s[g]).length;
-    rangeHint.textContent = missing
-      ? "Pick the remaining " + missing + " option" + (missing > 1 ? "s" : "") + " to narrow the range."
-      : "Based on your choices.";
+    rangeHint.textContent = missing ? T("summary.hintMissing", { n: missing }) : T("summary.hintDone");
 
     if (!shown.started) {           // first time: count up from a bit lower
       shown.low = r.low * 0.7;
@@ -189,21 +194,21 @@ const DEMO_PRICING = {
   // Phone and email are each optional, but at least one is needed (checked separately below).
   // If one is filled in, it must look valid.
   const rules = {
-    product: (v) => (v ? "" : "Please choose a product."),
-    name: (v) => (v.trim().length >= 2 ? "" : "Please enter your name."),
+    product: (v) => (v ? "" : T("err.product")),
+    name: (v) => (v.trim().length >= 2 ? "" : T("err.name")),
     phone: (v) => {
       v = v.trim();
       if (!v) return "";
       const digits = v.replace(/\D/g, "");
-      return /^[\d\s+\-()/]+$/.test(v) && digits.length >= 6 ? "" : "Please enter a valid phone number.";
+      return /^[\d\s+\-()/]+$/.test(v) && digits.length >= 6 ? "" : T("err.phone");
     },
     email: (v) => {
       v = v.trim();
       if (!v) return "";
-      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) ? "" : "Please enter a valid email address.";
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) ? "" : T("err.email");
     }
   };
-  const CONTACT_MSG = "Please enter a phone number or an email address.";
+  const contactMsg = () => T("err.contact");
   const contactMissing = () => !form.elements.phone.value.trim() && !form.elements.email.value.trim();
 
   /* ---------- Progress ring: how complete is the request? ---------- */
@@ -263,7 +268,7 @@ const DEMO_PRICING = {
     if (name === "phone" || name === "email") {
       // Typing in either box can fix the "phone or email" error shown on the phone box
       if (form.elements.phone.closest(".has-error")) {
-        showError("phone", rules.phone(form.elements.phone.value) || (contactMissing() ? CONTACT_MSG : ""));
+        showError("phone", rules.phone(form.elements.phone.value) || (contactMissing() ? contactMsg() : ""));
       }
       if (form.elements.email.closest(".has-error")) showError("email", rules.email(form.elements.email.value));
     } else if (rules[name] && e.target.closest(".has-error")) {
@@ -282,13 +287,12 @@ const DEMO_PRICING = {
     sending = on;
     sendBtn.disabled = on;
     sendBtn.classList.toggle("is-loading", on);
-    sendLabel.textContent = on ? "Sending…" : "Send request";
+    sendLabel.textContent = T(on ? "form.sending" : "form.send");
     form.setAttribute("aria-busy", String(on));
   }
 
   function showFail(message) {
-    fail.textContent = message ||
-      "Sorry — something went wrong and your request wasn't sent. Please try again in a moment, or call us on +43 316 000 000.";
+    fail.textContent = message || T("form.fail");
     fail.hidden = false;
   }
 
@@ -306,7 +310,7 @@ const DEMO_PRICING = {
       if (msg && !firstBad) firstBad = name;
     });
     if (contactMissing()) {
-      showError("phone", CONTACT_MSG);
+      showError("phone", contactMsg());
       if (!firstBad) firstBad = "phone";
     }
 
@@ -384,8 +388,25 @@ const DEMO_PRICING = {
     });
   });
 
-  // Tell the server which language the page is in (from <html lang="…">)
-  form.elements.lang.value = (document.documentElement.lang || "en").slice(0, 2).toLowerCase();
+  // (The hidden "lang" field is kept in sync with the chosen language by i18n.js.)
+
+  /* ---------- Language switch: redraw the texts this script creates ---------- */
+  function renderTexts() {
+    $(".menu-btn-text", menuBtn).textContent = T(navLinks.classList.contains("is-open") ? "nav.close" : "nav.menu");
+    if (!sending) sendLabel.textContent = T("form.send");
+    updateAll();
+    // Re-word any error messages that are showing right now
+    Object.keys(rules).forEach((name) => {
+      const el = $('[data-error-for="' + name + '"]', form);
+      if (el && el.textContent) {
+        const value = form.elements[name].value;
+        showError(name, rules[name](value) || (name === "phone" && contactMissing() ? contactMsg() : ""));
+      }
+    });
+    if (!fail.hidden) fail.textContent = T("form.fail");
+  }
+  document.addEventListener("i18n:change", renderTexts);
+  renderTexts();
 
   setOpenings(1);
 
@@ -476,7 +497,6 @@ const DEMO_PRICING = {
 
   mm.add("(prefers-reduced-motion: no-preference)", () => {
     const title = $("#hero-title");
-    const originalTitle = title.innerHTML;
 
     // Hide hero parts right away so they don't flash before animating
     gsap.set([title, ".hero .label", ".hero .lead", ".hero .actions", ".hero-photo", ".glass-pos", ".chips li"], { autoAlpha: 0 });
@@ -496,7 +516,7 @@ const DEMO_PRICING = {
         .fromTo(".hero .label", { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: 0.6 })
         .fromTo(lines, { yPercent: 115 }, {
           yPercent: 0, duration: 1, stagger: 0.12,
-          onComplete: () => { title.innerHTML = originalTitle; } // restore normal text after the reveal
+          onComplete: () => { title.innerHTML = T("hero.title"); } // restore normal text (in the current language)
         }, "-=0.35")
         .fromTo(".hero-photo", { autoAlpha: 0, scale: 0.96 }, { autoAlpha: 1, scale: 1, duration: 1.1 }, 0.1)
         .fromTo([".hero .lead", ".hero .actions"], { autoAlpha: 0, y: 18 }, { autoAlpha: 1, y: 0, duration: 0.7, stagger: 0.1 }, "-=0.6")
@@ -534,7 +554,7 @@ const DEMO_PRICING = {
     // Cleanup if the visitor switches reduced motion on while the page is open
     return () => {
       if (heroTl) heroTl.kill();
-      title.innerHTML = originalTitle;
+      title.innerHTML = T("hero.title");
     };
   });
 })();

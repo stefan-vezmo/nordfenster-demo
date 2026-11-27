@@ -145,8 +145,8 @@ button { font: inherit; color: inherit; }
   border-bottom: 2px solid var(--ink);
   padding-block: 3px;
 }
-.text-link span { transition: transform 0.25s var(--ease); }
-.text-link:hover span { transform: translateX(4px); }
+.text-link .arrow { transition: transform 0.25s var(--ease); }
+.text-link:hover .arrow { transform: translateX(4px); }
 
 :focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
 
@@ -190,6 +190,33 @@ button { font: inherit; color: inherit; }
 }
 
 .nav-cta { display: none; }
+
+/* Language switch: EN | DE */
+.lang-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: auto;                         /* sits next to the Menu button on phones */
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+.lang-switch span { opacity: 0.45; }
+.lang-switch button {
+  min-width: 34px;
+  min-height: 34px;
+  padding: 0 6px;
+  font: inherit;
+  letter-spacing: 0.04em;
+  color: inherit;
+  background: none;
+  border: 0;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+.lang-switch button:hover { color: var(--ink); background: var(--panel-2); }
+.lang-switch button[aria-pressed="true"] { color: var(--accent); background: var(--accent-tint); }
 
 .menu-btn {
   min-height: 38px;
@@ -1001,6 +1028,8 @@ button { font: inherit; color: inherit; }
   /* Nav: inline links */
   .menu-btn { display: none; }
   .nav-cta { display: inline-flex; }
+  .nav-links { margin-left: auto; }          /* links centred between logo and language switch */
+  .lang-switch { margin-right: 4px; }
   .nav-links {
     position: static;
     display: flex;
@@ -1155,3 +1184,14 @@ button { font: inherit; color: inherit; }
   background: #f8e9e5;
   border-radius: 12px;
 }
+
+/* German words can be long: allow automatic hyphenation in headings and
+   titles (German only), and never let a word overflow its box. */
+.display, .tile-title, .step-title, .faq-list summary, .footer-word { overflow-wrap: break-word; }
+:lang(de) .display,
+:lang(de) .tile-title,
+:lang(de) .tile-sub,
+:lang(de) .step-title,
+:lang(de) .choice-name,
+:lang(de) .steps h3,
+:lang(de) .faq-list summary { hyphens: auto; -webkit-hyphens: auto; }
