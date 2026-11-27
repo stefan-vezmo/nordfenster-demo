@@ -31,8 +31,7 @@ const ALLOWED = {
   product: { windows: "Windows", doors: "Doors", sliding: "Sliding systems" },
   material: { pvc: "PVC", alu: "ALU" },
   size: { small: "Small (up to 1 m²)", medium: "Medium (1–2 m²)", large: "Large (over 2 m²)" },
-  glazing: { double: "Double", triple: "Triple" },
-  salutation: { "": "Not specified", ms: "Ms", mr: "Mr" }
+  glazing: { double: "Double", triple: "Triple" }
 };
 
 // =========================================================
@@ -94,14 +93,9 @@ function isClearlyGerman(text) {
 }
 
 // --- Greeting and sign-off: built here, never by the AI ---
-function buildGreeting(language, firstName, lastName, salutation) {
-  if (language === "de") {
-    // Formal "Herr/Frau" only when the customer chose a salutation AND gave a last name
-    if (lastName && salutation === "ms") return "Sehr geehrte Frau " + lastName + ",";
-    if (lastName && salutation === "mr") return "Sehr geehrter Herr " + lastName + ",";
-    return "Guten Tag " + [firstName, lastName].filter(Boolean).join(" ") + ",";
-  }
-  return "Dear " + firstName + ",";
+// German always "Guten Tag [Name]," (never Herr/Frau — we don't know it); English "Dear [Name],"
+function buildGreeting(language, name) {
+  return (language === "de" ? "Guten Tag " : "Dear ") + name + ",";
 }
 function buildSignOff(language) {
   return language === "de" ? "Freundliche Grüße\nIhr Nordfenster-Team" : "Kind regards\nYour Nordfenster team";
@@ -182,7 +176,7 @@ async function draftReply(f) {
   const model = process.env.OPENAI_MODEL;
   if (!apiKey || !model) return { draft: null, reason: "not configured" };
 
-  const greeting = buildGreeting(f.language, f.firstName, f.lastName, f.salutation);
+  const greeting = buildGreeting(f.language, f.name);
   const signOff = buildSignOff(f.language);
   const [slot1, slot2] = placeholders(f.language);
   const bodyBudget = AI_MAX_WORDS - countWords(greeting) - countWords(signOff);
@@ -318,11 +312,9 @@ module.exports = async function handler(req, res) {
   }
 
   // 4. Clean and validate every field
-  //    (an old cached page may still send a single "name" — accept it as the first name)
-  const firstName = clean(data.firstName != null ? data.firstName : data.name, 60);
-  const lastName = clean(data.lastName, 60);
-  const salutation = Object.prototype.hasOwnProperty.call(ALLOWED.salutation, data.salutation || "") ? (data.salutation || "") : "";
-  const fullName = [firstName, lastName].filter(Boolean).join(" ");
+  //    (a page cached from the short-lived first/last-name version may send
+  //    "firstName"/"lastName" instead of "name" — join them so the lead isn't lost)
+  const name = clean(data.name != null ? data.name : [data.firstName, data.lastName].filter(Boolean).join(" "), 100);
   const phone = clean(data.phone, 40);
   const email = clean(data.email, 200);
   const message = cleanMultiline(data.message, 2000);
@@ -330,7 +322,7 @@ module.exports = async function handler(req, res) {
   const openings = parseInt(data.openings, 10);
 
   const errors = [];
-  if (firstName.length < 1) errors.push("Please enter your first name.");
+  if (name.length < 2) errors.push("Please enter your name.");
   if (!phone && !email) errors.push("Please enter a phone number or an email address.");
   if (phone && !isPhone(phone)) errors.push("Please enter a valid phone number.");
   if (email && !isEmail(email)) errors.push("Please enter a valid email address.");
@@ -361,9 +353,7 @@ module.exports = async function handler(req, res) {
 
   const ai = await draftReply({
     language,
-    firstName,
-    lastName,
-    salutation,
+    name,
     product: ALLOWED.product[data.product],
     material: ALLOWED.material[data.material],
     openings,
@@ -401,8 +391,7 @@ module.exports = async function handler(req, res) {
     ["Size", ALLOWED.size[data.size]],
     ["Glazing", ALLOWED.glazing[data.glazing]],
     ["Estimated range shown", estimate || "—"],
-    ["Name", fullName],
-    ["Salutation", ALLOWED.salutation[salutation]],
+    ["Name", name],
     ["Phone", phone || "—"],
     ["Email", email || "—"],
     ["Message", message || "—"],
@@ -455,7 +444,7 @@ module.exports = async function handler(req, res) {
   const payload = {
     from: FROM,
     to: [to],
-    subject: "Quote request: " + ALLOWED.product[data.product] + " — " + fullName +
+    subject: "Quote request: " + ALLOWED.product[data.product] + " — " + name +
       (msgInfo.asksForCallback ? " (callback requested)" : ""),
     text,
     html

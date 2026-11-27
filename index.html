@@ -242,21 +242,9 @@
         <legend class="step-title"><span class="step-no">3</span>Where should we send it?</legend>
         <div class="fields">
           <div class="field field-full">
-            <span class="opt-label" id="lbl-salutation">Salutation <span class="optional">(optional)</span></span>
-            <div class="pills" role="radiogroup" aria-labelledby="lbl-salutation">
-              <label class="pill"><input type="radio" name="salutation" value="" checked><span>Not specified</span></label>
-              <label class="pill"><input type="radio" name="salutation" value="ms"><span>Ms</span></label>
-              <label class="pill"><input type="radio" name="salutation" value="mr"><span>Mr</span></label>
-            </div>
-          </div>
-          <div class="field">
-            <label for="firstName">First name</label>
-            <input type="text" id="firstName" name="firstName" autocomplete="given-name" maxlength="60" required>
-            <p class="field-error" data-error-for="firstName" aria-live="polite"></p>
-          </div>
-          <div class="field">
-            <label for="lastName">Last name <span class="optional">(optional)</span></label>
-            <input type="text" id="lastName" name="lastName" autocomplete="family-name" maxlength="60">
+            <label for="name">Name</label>
+            <input type="text" id="name" name="name" autocomplete="name" maxlength="100" required>
+            <p class="field-error" data-error-for="name" aria-live="polite"></p>
           </div>
           <div class="field">
             <label for="phone">Phone</label>
