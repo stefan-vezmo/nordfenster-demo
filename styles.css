@@ -1096,3 +1096,62 @@ button { font: inherit; color: inherit; }
     animation: none !important;
   }
 }
+
+/* =========================================================
+   Quote sending: message box, hint, honeypot, loading, errors
+   ========================================================= */
+.field textarea {
+  width: 100%;
+  min-height: 96px;
+  padding: 11px 15px;
+  font: inherit;
+  font-size: 16px;
+  color: var(--ink);
+  background: var(--panel);
+  border: 1.5px solid var(--line);
+  border-radius: 14px;
+  resize: vertical;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.field textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-tint);
+}
+.optional { font-weight: 500; color: var(--ink-soft); opacity: 0.8; }
+.field-hint { margin: -4px 0 14px; font-size: 14px; color: var(--ink-soft); }
+
+/* Honeypot: moved far off-screen (not display:none, which some bots detect) */
+.hp {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+/* Send button: spinner shown only while sending */
+#send-btn { position: relative; }
+#send-btn .spinner {
+  display: none;
+  width: 18px;
+  height: 18px;
+  border: 2.5px solid rgba(255, 255, 255, 0.35);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+#send-btn.is-loading { cursor: progress; opacity: 0.85; }
+#send-btn.is-loading .spinner { display: inline-block; }
+#send-btn:disabled { pointer-events: none; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.form-error {
+  margin-top: 14px;
+  padding: 12px 14px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--error);
+  background: #f8e9e5;
+  border-radius: 12px;
+}

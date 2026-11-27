@@ -186,15 +186,25 @@ const DEMO_PRICING = {
   }
 
   /* ---------- Validation rules (shared by the ring and the submit) ---------- */
+  // Phone and email are each optional, but at least one is needed (checked separately below).
+  // If one is filled in, it must look valid.
   const rules = {
     product: (v) => (v ? "" : "Please choose a product."),
     name: (v) => (v.trim().length >= 2 ? "" : "Please enter your name."),
     phone: (v) => {
+      v = v.trim();
+      if (!v) return "";
       const digits = v.replace(/\D/g, "");
       return /^[\d\s+\-()/]+$/.test(v) && digits.length >= 6 ? "" : "Please enter a valid phone number.";
     },
-    email: (v) => (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()) ? "" : "Please enter a valid email address.")
+    email: (v) => {
+      v = v.trim();
+      if (!v) return "";
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) ? "" : "Please enter a valid email address.";
+    }
   };
+  const CONTACT_MSG = "Please enter a phone number or an email address.";
+  const contactMissing = () => !form.elements.phone.value.trim() && !form.elements.email.value.trim();
 
   /* ---------- Progress ring: how complete is the request? ---------- */
   function updateProgress() {
@@ -203,8 +213,9 @@ const DEMO_PRICING = {
     const checks = [
       !!s.product,
       rules.name(form.elements.name.value) === "",
-      rules.phone(form.elements.phone.value) === "",
-      rules.email(form.elements.email.value) === ""
+      !contactMissing() &&
+        rules.phone(form.elements.phone.value) === "" &&
+        rules.email(form.elements.email.value) === ""
     ];
     const pct = Math.round((checks.filter(Boolean).length / checks.length) * 100);
     ringFg.style.strokeDashoffset = String(RING_LENGTH * (1 - pct / 100));
@@ -249,30 +260,114 @@ const DEMO_PRICING = {
   });
   form.addEventListener("input", (e) => {
     const name = e.target.name;
-    if (rules[name] && e.target.closest(".has-error")) showError(name, rules[name](e.target.value));
+    if (name === "phone" || name === "email") {
+      // Typing in either box can fix the "phone or email" error shown on the phone box
+      if (form.elements.phone.closest(".has-error")) {
+        showError("phone", rules.phone(form.elements.phone.value) || (contactMissing() ? CONTACT_MSG : ""));
+      }
+      if (form.elements.email.closest(".has-error")) showError("email", rules.email(form.elements.email.value));
+    } else if (rules[name] && e.target.closest(".has-error")) {
+      showError(name, rules[name](e.target.value));
+    }
     updateProgress();
   });
 
-  form.addEventListener("submit", (e) => {
-    e.preventDefault(); // nothing is sent anywhere
+  /* ---------- Sending the request to /api/quote ---------- */
+  const sendBtn = $("#send-btn");
+  const sendLabel = $(".btn-label", sendBtn);
+  const fail = $("#form-fail");
+  let sending = false;
 
+  function setLoading(on) {
+    sending = on;
+    sendBtn.disabled = on;
+    sendBtn.classList.toggle("is-loading", on);
+    sendLabel.textContent = on ? "Sending…" : "Send request";
+    form.setAttribute("aria-busy", String(on));
+  }
+
+  function showFail(message) {
+    fail.textContent = message ||
+      "Sorry — something went wrong and your request wasn't sent. Please try again in a moment, or call us on +43 316 000 000.";
+    fail.hidden = false;
+  }
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();              // we send it ourselves with fetch, without reloading the page
+    if (sending) return;             // ignore double-clicks
+    success.hidden = true;
+    fail.hidden = true;
+
+    // 1. Check the fields in the browser first (the server checks again)
     let firstBad = null;
     Object.keys(rules).forEach((name) => {
       const msg = rules[name](form.elements[name].value);
       showError(name, msg);
       if (msg && !firstBad) firstBad = name;
     });
+    if (contactMissing()) {
+      showError("phone", CONTACT_MSG);
+      if (!firstBad) firstBad = "phone";
+    }
 
     if (firstBad) {
-      success.hidden = true;
       const target = firstBad === "product" ? $('input[name="product"]', form) : form.elements[firstBad];
       if (firstBad === "product") $("#step-1").scrollIntoView({ behavior: reduceMotion.matches ? "auto" : "smooth", block: "start" });
       target.focus({ preventScroll: firstBad === "product" });
       return;
     }
 
-    // Later, this is where the request would be sent to a server or email service.
-    success.hidden = false;
+    // 2. Collect everything into one object
+    const s = getState();
+    const r = computeRange(s);
+    const payload = {
+      product: s.product,
+      material: s.material,
+      openings: s.openings,
+      size: s.size,
+      glazing: s.glazing,
+      estimate: r ? money(r.low) + " – " + money(r.high) : "",
+      name: form.elements.name.value.trim(),
+      phone: form.elements.phone.value.trim(),
+      email: form.elements.email.value.trim(),
+      message: form.elements.message.value.trim(),
+      company: form.elements.company.value      // honeypot: always empty for real people
+    };
+
+    // 3. Send it, with a loading state and a 15-second time limit
+    setLoading(true);
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 15000);
+
+    try {
+      const res = await fetch("/api/quote", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+        signal: controller.signal
+      });
+      let body = null;
+      try { body = await res.json(); } catch { /* not JSON, e.g. a 404 page */ }
+
+      if (res.ok && body && body.ok) {
+        // 4a. Success
+        success.hidden = false;
+        form.elements.message.value = "";
+        success.scrollIntoView({ behavior: reduceMotion.matches ? "auto" : "smooth", block: "nearest" });
+      } else if (res.status === 400 && body && body.error) {
+        // 4b. The server found a problem with the input
+        showFail(body.error);
+      } else {
+        // 4c. Anything else (server or email service problem)
+        showFail();
+      }
+    } catch (err) {
+      // 4d. No connection, or it took too long
+      showFail();
+    } finally {
+      clearTimeout(timer);
+      setLoading(false);
+    }
   });
 
   /* ---------- Links elsewhere on the page that preselect a product ---------- */

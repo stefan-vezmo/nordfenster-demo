@@ -148,19 +148,19 @@
         <div class="tiles">
           <label class="choice-tile">
             <input type="radio" name="product" value="windows" checked>
-            <span class="choice-img"><img src="https://images.unsplash.com/photo-1783125127143-d4e18726bab3?auto=format&fit=crop&w=600&h=450&q=70" alt="" loading="lazy"></span>
+            <span class="choice-img"><img src="https://images.unsplash.com/photo-1783125127143-d4e18726bab3?auto=format&fit=crop&w=600&h=450&q=70" alt="Windows: modern white house with a tall, dark-framed corner window" loading="lazy"></span>
             <span class="choice-name">Windows</span>
             <span class="choice-check" aria-hidden="true"></span>
           </label>
           <label class="choice-tile">
             <input type="radio" name="product" value="doors">
-            <span class="choice-img"><img src="https://images.unsplash.com/photo-1613544723301-176686aa9f09?auto=format&fit=crop&w=600&h=450&q=70" alt="" loading="lazy"></span>
+            <span class="choice-img"><img src="https://images.unsplash.com/photo-1613544723301-176686aa9f09?auto=format&fit=crop&w=600&h=450&q=70" alt="Doors: grey modern double entrance door with frosted glass inserts" loading="lazy"></span>
             <span class="choice-name">Doors</span>
             <span class="choice-check" aria-hidden="true"></span>
           </label>
           <label class="choice-tile">
             <input type="radio" name="product" value="sliding">
-            <span class="choice-img"><img src="https://images.unsplash.com/photo-1721902024148-287438cf3e05?auto=format&fit=crop&w=600&h=450&q=70" alt="" loading="lazy"></span>
+            <span class="choice-img"><img src="https://images.unsplash.com/photo-1721902024148-287438cf3e05?auto=format&fit=crop&w=600&h=450&q=70" alt="Sliding systems: large sliding glass door opening onto a balcony" loading="lazy"></span>
             <span class="choice-name">Sliding systems</span>
             <span class="choice-check" aria-hidden="true"></span>
           </label>
@@ -241,26 +241,41 @@
       <fieldset class="step" id="step-3">
         <legend class="step-title"><span class="step-no">3</span>Where should we send it?</legend>
         <div class="fields">
-          <div class="field">
+          <div class="field field-full">
             <label for="name">Name</label>
-            <input type="text" id="name" name="name" autocomplete="name" required>
+            <input type="text" id="name" name="name" autocomplete="name" maxlength="100" required>
             <p class="field-error" data-error-for="name" aria-live="polite"></p>
           </div>
           <div class="field">
             <label for="phone">Phone</label>
-            <input type="tel" id="phone" name="phone" autocomplete="tel" inputmode="tel" required>
+            <input type="tel" id="phone" name="phone" autocomplete="tel" inputmode="tel" maxlength="40" aria-describedby="contact-hint">
             <p class="field-error" data-error-for="phone" aria-live="polite"></p>
           </div>
-          <div class="field field-full">
+          <div class="field">
             <label for="email">Email</label>
-            <input type="email" id="email" name="email" autocomplete="email" required>
+            <input type="email" id="email" name="email" autocomplete="email" maxlength="200" aria-describedby="contact-hint">
             <p class="field-error" data-error-for="email" aria-live="polite"></p>
           </div>
+          <p class="field-hint field-full" id="contact-hint">A phone number or an email is enough — whichever you prefer.</p>
+          <div class="field field-full">
+            <label for="message">Message <span class="optional">(optional)</span></label>
+            <textarea id="message" name="message" rows="3" maxlength="2000" placeholder="Anything we should know — timing, access, questions…"></textarea>
+          </div>
+
+          <!-- Honeypot: hidden from people, but spam bots fill it in. Must stay empty. -->
+          <div class="hp" aria-hidden="true">
+            <label for="company">Company</label>
+            <input type="text" id="company" name="company" tabindex="-1" autocomplete="off">
+          </div>
         </div>
-        <button type="submit" class="btn btn-primary btn-block btn-lg">Send request</button>
+        <button type="submit" class="btn btn-primary btn-block btn-lg" id="send-btn">
+          <span class="spinner" aria-hidden="true"></span>
+          <span class="btn-label">Send request</span>
+        </button>
         <p class="form-success" id="form-success" role="status" hidden>
-          Thank you! This is a demo, so nothing was sent — but your request is complete.
+          Thanks! We'll contact you within 48h.
         </p>
+        <p class="form-error" id="form-fail" role="alert" hidden></p>
       </fieldset>
 
     </form>
