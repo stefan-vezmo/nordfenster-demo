@@ -1,0 +1,20 @@
+# macOS folder metadata
+.DS_Store
+._*
+
+# Editor and IDE settings
+.vscode/
+.idea/
+*.swp
+*~
+
+# Local environment files and secrets (never commit these)
+.env
+.env.*
+
+# Logs and dependency folders (in case tools are added later)
+*.log
+node_modules/
+
+# Claude Code local settings
+.claude/settings.local.json

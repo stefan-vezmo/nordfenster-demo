@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Nordfenster — ALU & PVC Windows and Doors, Graz</title>
+  <meta name="description" content="ALU and PVC windows, doors and sliding systems in Graz. Get an instant estimate, then a free measuring visit.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://images.unsplash.com">
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="page">
+
+  <!-- ================= NAV (a floating panel) ================= -->
+  <header class="nav panel" id="nav">
+    <a href="#top" class="logo" aria-label="Nordfenster, back to top">
+      <span class="logo-mark" aria-hidden="true"></span>
+      <span>Nord<span class="accent">fenster</span></span>
+    </a>
+
+    <nav class="nav-links" id="nav-links" aria-label="Main">
+      <a href="#products">Products</a>
+      <a href="#estimate">Estimate</a>
+      <a href="#process">How it works</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+
+    <a href="#estimate" class="btn btn-primary btn-sm nav-cta">Get your estimate</a>
+
+    <button class="menu-btn" id="menu-btn" aria-expanded="false" aria-controls="nav-links">
+      <span class="menu-btn-text">Menu</span>
+    </button>
+  </header>
+
+  <!-- ================= HERO ================= -->
+  <section class="panel hero" id="top">
+    <div class="hero-grid">
+      <div class="hero-copy">
+        <p class="label">ALU &amp; PVC · Graz</p>
+        <h1 class="display" id="hero-title">Windows that keep the <span class="accent">weather</span> out.</h1>
+        <p class="lead">Made to measure and installed by our own team — so your home stays warm, quiet and dry.</p>
+        <div class="actions">
+          <a href="#estimate" class="btn btn-primary">Get your estimate</a>
+          <a href="#process" class="text-link">How it works <span aria-hidden="true">→</span></a>
+        </div>
+      </div>
+
+      <div class="hero-media">
+        <div class="hero-photo">
+          <img
+            src="https://images.unsplash.com/photo-1591474200742-8e512e6f98f8?auto=format&fit=crop&w=1000&h=1250&q=75"
+            srcset="https://images.unsplash.com/photo-1591474200742-8e512e6f98f8?auto=format&fit=crop&w=700&h=875&q=70 700w,
+                    https://images.unsplash.com/photo-1591474200742-8e512e6f98f8?auto=format&fit=crop&w=1000&h=1250&q=75 1000w,
+                    https://images.unsplash.com/photo-1591474200742-8e512e6f98f8?auto=format&fit=crop&w=1400&h=1750&q=75 1400w"
+            sizes="(min-width: 900px) 45vw, 100vw"
+            alt="Modern house with large dark-framed corner windows"
+            fetchpriority="high">
+        </div>
+
+        <!-- Glass cards floating over the photo's edges -->
+        <div class="glass-pos glass-a">
+          <div class="glass">
+            <span class="glass-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><rect x="2.5" y="8" width="19" height="8" rx="1.5"/><path d="M6.5 8v3M10 8v4.5M13.5 8v3M17 8v4.5"/></svg>
+            </span>
+            <span>Free measuring visit</span>
+          </div>
+        </div>
+        <div class="glass-pos glass-b">
+          <div class="glass">
+            <span class="glass-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4M10 12h5M10 16h5"/></svg>
+            </span>
+            <span>Written offer in 48h</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Service pills -->
+    <ul class="chips" aria-label="Services">
+      <li>PVC windows</li>
+      <li>ALU windows</li>
+      <li>Entrance doors</li>
+      <li>Balcony doors</li>
+      <li>Sliding systems</li>
+      <li>Window replacement</li>
+      <li>Measuring &amp; installation</li>
+    </ul>
+  </section>
+
+  <!-- ================= PRODUCTS (bento grid) ================= -->
+  <section class="panel reveal" id="products">
+    <div class="section-head">
+      <p class="label">Products</p>
+      <h2 class="display">Made for every <span class="accent">opening</span>.</h2>
+    </div>
+
+    <div class="bento">
+      <a href="#estimate" class="bento-tile tile-large" data-product="windows">
+        <img src="https://images.unsplash.com/photo-1783125127143-d4e18726bab3?auto=format&fit=crop&w=1200&h=1200&q=75"
+             alt="White modern house with a tall dark-framed window" loading="lazy">
+        <span class="tile-title">Windows</span>
+        <span class="tile-sub">PVC &amp; ALU · double or triple glazed</span>
+        <span class="tile-go" aria-hidden="true">→</span>
+      </a>
+      <a href="#estimate" class="bento-tile" data-product="doors">
+        <img src="https://images.unsplash.com/photo-1613544723301-176686aa9f09?auto=format&fit=crop&w=800&h=640&q=75"
+             alt="Grey modern double entrance door with glass inserts" loading="lazy">
+        <span class="tile-title">Doors</span>
+        <span class="tile-sub">Entrance &amp; balcony</span>
+        <span class="tile-go" aria-hidden="true">→</span>
+      </a>
+      <a href="#estimate" class="bento-tile" data-product="sliding">
+        <img src="https://images.unsplash.com/photo-1721902024148-287438cf3e05?auto=format&fit=crop&w=800&h=640&q=75"
+             alt="Bright room with a large sliding glass door to a balcony" loading="lazy">
+        <span class="tile-title">Sliding systems</span>
+        <span class="tile-sub">Wide openings, slim frames</span>
+        <span class="tile-go" aria-hidden="true">→</span>
+      </a>
+      <a href="#estimate" class="bento-tile tile-wide" data-product="windows">
+        <img src="https://images.unsplash.com/photo-1754063257992-bb9eabdbdd86?auto=format&fit=crop&w=1400&h=600&q=75"
+             alt="House extension with new white windows and patio doors" loading="lazy">
+        <span class="tile-title">Window replacement</span>
+        <span class="tile-sub">Old frames out, new ones in — one visit from our team</span>
+        <span class="tile-go" aria-hidden="true">→</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- ================= INSTANT ESTIMATE CONFIGURATOR ================= -->
+  <section class="panel reveal" id="estimate">
+    <div class="section-head">
+      <p class="label">Instant estimate</p>
+      <h2 class="display">Your <span class="accent">estimate</span>, live.</h2>
+      <p class="lead">We have filled in a typical starting point. Change any option and the range updates instantly.</p>
+    </div>
+
+    <form class="config" id="estimate-form" novalidate>
+
+      <!-- Step 1: product -->
+      <fieldset class="step" id="step-1">
+        <legend class="step-title"><span class="step-no">1</span>Choose a product</legend>
+        <div class="tiles">
+          <label class="choice-tile">
+            <input type="radio" name="product" value="windows" checked>
+            <span class="choice-img"><img src="https://images.unsplash.com/photo-1783125127143-d4e18726bab3?auto=format&fit=crop&w=600&h=450&q=70" alt="" loading="lazy"></span>
+            <span class="choice-name">Windows</span>
+            <span class="choice-check" aria-hidden="true"></span>
+          </label>
+          <label class="choice-tile">
+            <input type="radio" name="product" value="doors">
+            <span class="choice-img"><img src="https://images.unsplash.com/photo-1613544723301-176686aa9f09?auto=format&fit=crop&w=600&h=450&q=70" alt="" loading="lazy"></span>
+            <span class="choice-name">Doors</span>
+            <span class="choice-check" aria-hidden="true"></span>
+          </label>
+          <label class="choice-tile">
+            <input type="radio" name="product" value="sliding">
+            <span class="choice-img"><img src="https://images.unsplash.com/photo-1721902024148-287438cf3e05?auto=format&fit=crop&w=600&h=450&q=70" alt="" loading="lazy"></span>
+            <span class="choice-name">Sliding systems</span>
+            <span class="choice-check" aria-hidden="true"></span>
+          </label>
+        </div>
+        <p class="field-error" data-error-for="product" aria-live="polite"></p>
+      </fieldset>
+
+      <!-- Step 2: specification -->
+      <fieldset class="step" id="step-2">
+        <legend class="step-title"><span class="step-no">2</span>Tell us a little more</legend>
+
+        <div class="opt">
+          <span class="opt-label" id="lbl-material">Material</span>
+          <div class="pills" role="radiogroup" aria-labelledby="lbl-material">
+            <label class="pill"><input type="radio" name="material" value="pvc" checked><span>PVC</span></label>
+            <label class="pill"><input type="radio" name="material" value="alu"><span>ALU</span></label>
+          </div>
+        </div>
+
+        <div class="opt">
+          <span class="opt-label" id="lbl-openings">Number of openings</span>
+          <div class="stepper" role="group" aria-labelledby="lbl-openings">
+            <button type="button" class="stepper-btn" data-step="-1" aria-label="Fewer openings">−</button>
+            <output class="stepper-value" id="openings-out" aria-live="polite">1</output>
+            <button type="button" class="stepper-btn" data-step="1" aria-label="More openings">+</button>
+            <input type="hidden" name="openings" id="openings" value="1">
+          </div>
+        </div>
+
+        <div class="opt">
+          <span class="opt-label" id="lbl-size">Size of each opening</span>
+          <div class="pills" role="radiogroup" aria-labelledby="lbl-size">
+            <label class="pill"><input type="radio" name="size" value="small"><span>Small <small>up to 1 m²</small></span></label>
+            <label class="pill"><input type="radio" name="size" value="medium" checked><span>Medium <small>1–2 m²</small></span></label>
+            <label class="pill"><input type="radio" name="size" value="large"><span>Large <small>over 2 m²</small></span></label>
+          </div>
+        </div>
+
+        <div class="opt">
+          <span class="opt-label" id="lbl-glazing">Glazing</span>
+          <div class="pills" role="radiogroup" aria-labelledby="lbl-glazing">
+            <label class="pill"><input type="radio" name="glazing" value="double" checked><span>Double</span></label>
+            <label class="pill"><input type="radio" name="glazing" value="triple"><span>Triple</span></label>
+          </div>
+        </div>
+        <p class="opt-hint">Not sure? Keep the defaults — we'll advise at the free measuring visit.</p>
+      </fieldset>
+
+      <!-- Live summary (side panel on desktop, between steps 2 and 3 on mobile) -->
+      <aside class="summary" aria-label="Your estimate">
+        <div class="summary-top">
+          <div class="ring" id="ring">
+            <svg viewBox="0 0 120 120" aria-hidden="true">
+              <circle class="ring-bg" cx="60" cy="60" r="52"/>
+              <circle class="ring-fg" id="ring-fg" cx="60" cy="60" r="52"/>
+            </svg>
+            <div class="ring-text"><strong id="ring-pct">0%</strong><span>complete</span></div>
+          </div>
+          <div>
+            <p class="summary-label">Estimated range</p>
+            <p class="range" id="range">€— – €—</p>
+            <p class="range-hint" id="range-hint">Choose a product to see a range.</p>
+          </div>
+        </div>
+
+        <dl class="summary-list">
+          <div><dt>Product</dt><dd id="sum-product">—</dd></div>
+          <div><dt>Material</dt><dd id="sum-material">—</dd></div>
+          <div><dt>Openings</dt><dd id="sum-openings">1</dd></div>
+          <div><dt>Size</dt><dd id="sum-size">—</dd></div>
+          <div><dt>Glazing</dt><dd id="sum-glazing">—</dd></div>
+        </dl>
+
+        <p class="demo-note">Demo pricing. Final offer after free measuring.</p>
+      </aside>
+
+      <!-- Step 3: contact -->
+      <fieldset class="step" id="step-3">
+        <legend class="step-title"><span class="step-no">3</span>Where should we send it?</legend>
+        <div class="fields">
+          <div class="field">
+            <label for="name">Name</label>
+            <input type="text" id="name" name="name" autocomplete="name" required>
+            <p class="field-error" data-error-for="name" aria-live="polite"></p>
+          </div>
+          <div class="field">
+            <label for="phone">Phone</label>
+            <input type="tel" id="phone" name="phone" autocomplete="tel" inputmode="tel" required>
+            <p class="field-error" data-error-for="phone" aria-live="polite"></p>
+          </div>
+          <div class="field field-full">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" autocomplete="email" required>
+            <p class="field-error" data-error-for="email" aria-live="polite"></p>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block btn-lg">Send request</button>
+        <p class="form-success" id="form-success" role="status" hidden>
+          Thank you! This is a demo, so nothing was sent — but your request is complete.
+        </p>
+      </fieldset>
+
+    </form>
+  </section>
+
+  <!-- ================= BEFORE / AFTER ================= -->
+  <section class="panel reveal" id="before-after">
+    <div class="section-head">
+      <p class="label">Before &amp; after</p>
+      <h2 class="display">Old out, <span class="accent">new</span> in.</h2>
+      <p class="lead">Drag the handle to compare a worn-out window with a new one.</p>
+    </div>
+
+    <div class="ba" id="ba">
+      <img class="ba-img" src="https://images.unsplash.com/photo-1788204997156-72d623841c2b?auto=format&fit=crop&crop=focalpoint&fp-x=0.43&fp-y=0.49&fp-z=1.13&w=1600&h=900&q=75"
+           alt="After: a clean new white window in a plastered wall" loading="lazy">
+      <div class="ba-before">
+        <img class="ba-img" src="https://images.unsplash.com/photo-1587729042088-a8034bffd61a?auto=format&fit=crop&crop=focalpoint&fp-x=0.5&fp-y=0.47&fp-z=1.1&w=1600&h=900&q=75"
+             alt="Before: an old window with peeling paint and worn shutters" loading="lazy">
+      </div>
+      <div class="ba-line" aria-hidden="true"><span class="ba-knob">‹ ›</span></div>
+      <span class="ba-tag ba-tag-before">Before</span>
+      <span class="ba-tag ba-tag-after">After</span>
+      <input type="range" class="ba-range" id="ba-range" min="0" max="100" value="50"
+             aria-label="Drag to compare before and after">
+    </div>
+    <p class="caption">Example photos of two different buildings, for illustration only.</p>
+  </section>
+
+  <!-- ================= HOW IT WORKS (dark) ================= -->
+  <section class="panel panel-dark reveal" id="process">
+    <div class="section-head">
+      <p class="label">How it works</p>
+      <h2 class="display">Four steps, <span class="accent">one</span> team.</h2>
+    </div>
+    <ol class="steps">
+      <li><span class="step-num">01</span><h3>Request</h3><p>Use the estimate above or call us. A rough idea is enough.</p></li>
+      <li><span class="step-num">02</span><h3>Measuring</h3><p>We visit, measure every opening and help you choose. Free.</p></li>
+      <li><span class="step-num">03</span><h3>Offer</h3><p>A clear, written offer within 48 hours. No obligation.</p></li>
+      <li><span class="step-num">04</span><h3>Installation</h3><p>Our own team fits, seals and cleans up after itself.</p></li>
+    </ol>
+  </section>
+
+  <!-- ================= FAQ ================= -->
+  <section class="panel reveal" id="faq">
+    <div class="faq-grid">
+      <div class="section-head">
+        <p class="label">FAQ</p>
+        <h2 class="display">Good to <span class="accent">know</span>.</h2>
+      </div>
+      <div class="faq-list">
+        <details name="faq">
+          <summary>Is the measuring visit really free?</summary>
+          <div class="faq-body"><p>Yes. We come to you, measure every opening and talk through the options. There is no obligation to order.</p></div>
+        </details>
+        <details name="faq">
+          <summary>How soon will I get an offer?</summary>
+          <div class="faq-body"><p>You get a written offer within 48 hours of the measuring visit.</p></div>
+        </details>
+        <details name="faq">
+          <summary>PVC or aluminium — which should I choose?</summary>
+          <div class="faq-body"><p>PVC insulates well and usually costs less. Aluminium allows slimmer frames and larger panes, which is why it's often chosen for sliding systems and big glazing. We'll help you decide at the visit.</p></div>
+        </details>
+        <details name="faq">
+          <summary>Do you remove the old windows?</summary>
+          <div class="faq-body"><p>Yes — removing the old frames can be included in your offer, and our team does it as part of the installation.</p></div>
+        </details>
+        <details name="faq">
+          <summary>Is the online estimate the final price?</summary>
+          <div class="faq-body"><p>No. It's a rough demo range to give you an idea. The final price comes in the written offer after the free measuring visit.</p></div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= FOOTER (dark panel) ================= -->
+  <footer class="panel panel-dark footer reveal" id="contact">
+    <div class="footer-top">
+      <p class="footer-word">Nord<span class="accent">fenster</span></p>
+      <a href="#estimate" class="btn btn-light">Get your estimate</a>
+    </div>
+
+    <div class="footer-grid">
+      <div>
+        <h2 class="footer-title">Contact <span class="demo-tag">Demo data</span></h2>
+        <dl class="footer-contact">
+          <div><dt>Phone</dt><dd>+43 316 000 000</dd></div>
+          <div><dt>Email</dt><dd>info@nordfenster.example</dd></div>
+          <div><dt>Address</dt><dd>Musterstraße 1, 8010 Graz</dd></div>
+        </dl>
+        <p class="footer-note">Placeholder details — Nordfenster is a fictional company.</p>
+      </div>
+
+      <div>
+        <h2 class="footer-title">Explore</h2>
+        <ul class="footer-links">
+          <li><a href="#products">Products</a></li>
+          <li><a href="#estimate">Instant estimate</a></li>
+          <li><a href="#process">How it works</a></li>
+          <li><a href="#faq">FAQ</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h2 class="footer-title">Photos</h2>
+        <p class="footer-credits">
+          From <a href="https://unsplash.com" target="_blank" rel="noopener">Unsplash</a>, by
+          <a href="https://unsplash.com/@naomi_ruth" target="_blank" rel="noopener">Naomi Ellsworth</a>,
+          <a href="https://unsplash.com/@salvomedia" target="_blank" rel="noopener">Salvo Media LLC</a>,
+          <a href="https://unsplash.com/@zacgudakov" target="_blank" rel="noopener">Zac Gudakov</a>,
+          <a href="https://unsplash.com/@lisaanna195" target="_blank" rel="noopener">Lisa Anna</a>,
+          <a href="https://unsplash.com/@brett_jordan" target="_blank" rel="noopener">Brett Jordan</a>,
+          <a href="https://unsplash.com/@lookinout" target="_blank" rel="noopener">Olga Bi</a> and
+          <a href="https://unsplash.com/@pawel_czerwinski" target="_blank" rel="noopener">Pawel Czerwinski</a>.
+        </p>
+      </div>
+    </div>
+
+    <p class="footer-bottom">© <span id="year">2026</span> Nordfenster · Demo website</p>
+  </footer>
+
+</div>
+
+<!-- ================= MOBILE BOTTOM BAR ================= -->
+<div class="mobile-bar" id="mobile-bar" aria-label="Quick actions">
+  <a href="tel:+43316000000" class="mobile-bar-call">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg>
+    Call
+  </a>
+  <a href="#estimate" class="mobile-bar-cta">Get estimate</a>
+</div>
+
+<!-- GSAP animation library + ScrollTrigger plugin (from jsDelivr CDN) -->
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
