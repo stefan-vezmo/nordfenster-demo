@@ -190,7 +190,7 @@ const DEMO_PRICING = {
   // If one is filled in, it must look valid.
   const rules = {
     product: (v) => (v ? "" : "Please choose a product."),
-    name: (v) => (v.trim().length >= 2 ? "" : "Please enter your name."),
+    firstName: (v) => (v.trim().length >= 1 ? "" : "Please enter your first name."),
     phone: (v) => {
       v = v.trim();
       if (!v) return "";
@@ -212,7 +212,7 @@ const DEMO_PRICING = {
     // Options are preselected, so "complete" means: product chosen + contact details valid
     const checks = [
       !!s.product,
-      rules.name(form.elements.name.value) === "",
+      rules.firstName(form.elements.firstName.value) === "",
       !contactMissing() &&
         rules.phone(form.elements.phone.value) === "" &&
         rules.email(form.elements.email.value) === ""
@@ -327,7 +327,9 @@ const DEMO_PRICING = {
       size: s.size,
       glazing: s.glazing,
       estimate: r ? money(r.low) + " – " + money(r.high) : "",
-      name: form.elements.name.value.trim(),
+      firstName: form.elements.firstName.value.trim(),
+      lastName: form.elements.lastName.value.trim(),
+      salutation: form.elements.salutation.value,   // "", "ms" or "mr"
       phone: form.elements.phone.value.trim(),
       email: form.elements.email.value.trim(),
       message: form.elements.message.value.trim(),
