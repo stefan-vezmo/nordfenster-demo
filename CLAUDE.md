@@ -32,8 +32,10 @@ Local secrets go in `.env*`, which is git-ignored.
 ## Honesty rules
 - Demo data is always labelled as demo (e.g. "Demo pricing", "Demo data", "Nordfenster is a fictional company").
 - Never invent reviews, testimonials, customer counts, ratings, years in business or other stats.
-- AI drafts must never contain invented dates, weekdays, times or relative times. They use the placeholders
-  `[Tag, Uhrzeit 1]` / `[Tag, Uhrzeit 2]` (EN: `[Day, time 1]` / `[Day, time 2]`); `checkDraft()` rejects violations.
+- AI drafts must never invent an appointment: no concrete dates ("30 November", "30.11.") or clock times
+  ("10:00", "3 pm"). General phrases ("this week", "diese Woche") are allowed. The visit uses the placeholders
+  `[Tag, Uhrzeit 1]` / `[Tag, Uhrzeit 2]` (EN: `[Day, time 1]` / `[Day, time 2]`). `checkDraft()` rejects
+  violations; the draft is retried once with a stricter instruction, else the owner email says why it was skipped.
 - AI drafts use only the submitted facts: no invented prices, discounts, delivery times or guarantees.
 - Greeting and sign-off are built in code, not by the AI. Quantities are whole units, never sashes ("Flügel").
 
