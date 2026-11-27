@@ -104,12 +104,9 @@ function placeholders(language) {
   return language === "de" ? ["[Tag, Uhrzeit 1]", "[Tag, Uhrzeit 2]"] : ["[Day, time 1]", "[Day, time 2]"];
 }
 
-// --- The customer's own message: callback request? a different product? ---
-const CALLBACK = [
-  "rückruf", "zurückrufen", "zurück rufen", "anrufen", "rufen sie mich", "rufen sie uns",
-  "ruf mich", "ruft mich", "telefonisch", "call me", "call back", "callback",
-  "phone me", "ring me", "give me a call", "please call"
-];
+// --- The customer's own message: did they mention a different product? ---
+// (Whether they want a callback is decided by the AI — it understands typos
+//  like "ruckruff" that a keyword list would miss.)
 const PRODUCT_WORDS = {
   sliding: word(["schiebetür(?:en)?", "hebeschiebetür(?:en)?", "schiebe\\w*", "sliding", "slider", "slide"]),
   doors: word(["tür(?:e|en)?", "haustür(?:en)?", "balkontür(?:en)?", "eingangstür(?:en)?", "terrassentür(?:en)?", "doors?"]),
@@ -117,7 +114,6 @@ const PRODUCT_WORDS = {
 };
 function readCustomerMessage(message, selectedProduct) {
   const t = message.toLowerCase().replace(/nordfenster/g, " ");
-  const asksForCallback = CALLBACK.some((p) => t.includes(p));
   // "Schiebetür" is a sliding system, not an ordinary door
   const withoutSliding = t.replace(/(?:hebe)?schiebetür(?:en)?/g, " ");
   const mentioned = [];
@@ -125,7 +121,7 @@ function readCustomerMessage(message, selectedProduct) {
   if (PRODUCT_WORDS.doors.test(withoutSliding)) mentioned.push("doors");
   if (PRODUCT_WORDS.windows.test(t)) mentioned.push("windows");
   const otherProducts = mentioned.filter((p) => p !== selectedProduct).map((p) => ALLOWED.product[p]);
-  return { asksForCallback, otherProducts };
+  return { otherProducts };
 }
 
 // --- Safety check: no invented dates or times, placeholders present ---
@@ -158,6 +154,16 @@ function limitWords(text, max) {
   return (lastStop > cut.length * 0.6 ? cut.slice(0, lastStop + 1) : cut + "…").trim();
 }
 
+// Every paragraph and every sentence starts with a capital letter (German grammar),
+// except right after common abbreviations such as "z. B." or "e.g.".
+const ABBREVIATION_END = /(?:^|[\s(])(?:z\.\s?b|d\.\s?h|u\.\s?a|bzw|ca|inkl|ggf|evtl|usw|etc|e\.g|i\.e|vs|nr|str|tel)\.$/i;
+function capitalizeSentences(text) {
+  return text.replace(/(^|[.!?]["“”»)]*\s+)(["„“»(]*)(\p{Ll})/gu, (match, sep, opening, letter, offset) => {
+    if (sep && ABBREVIATION_END.test(text.slice(0, offset + sep.trimEnd().length))) return match;
+    return sep + opening + letter.toUpperCase();
+  });
+}
+
 // Remove a greeting or sign-off the AI might add anyway, and line breaks inside a paragraph
 function tidyParagraph(p) {
   return String(p || "")
@@ -168,13 +174,15 @@ function tidyParagraph(p) {
     .trim();
 }
 
-// Ask OpenAI for the two middle paragraphs, then assemble the full reply.
-// Returns { draft } or { draft: null, reason }. It never throws, so a failing
-// AI can never stop the lead email.
+// Ask OpenAI for { callback_requested, draft }, then assemble the full reply.
+// Returns { draft, callbackRequested, reason }:
+//   draft              full reply text, or null if it failed or was rejected
+//   callbackRequested  true / false, or null when the AI gave no usable answer
+// It never throws, so a failing AI can never stop the lead email.
 async function draftReply(f) {
   const apiKey = process.env.OPENAI_API_KEY;
   const model = process.env.OPENAI_MODEL;
-  if (!apiKey || !model) return { draft: null, reason: "not configured" };
+  if (!apiKey || !model) return { draft: null, callbackRequested: null, reason: "not configured" };
 
   const greeting = buildGreeting(f.language, f.name);
   const signOff = buildSignOff(f.language);
@@ -191,21 +199,23 @@ async function draftReply(f) {
     glazing: f.glazing,
     estimated_range: f.estimate || "not shown",
     customer_message: f.message || "(no message)",
-    customer_asks_for_callback: f.asksForCallback,
     customer_gave_phone_number: f.hasPhone,
     other_products_mentioned_in_message: f.otherProducts
   };
 
   const instructions = [
     "You write reply drafts for Nordfenster, a window and door company in Graz, Austria. A staff member checks every draft before it is sent.",
-    "Write ONLY the two middle paragraphs. The greeting (\"" + greeting + "\") and the sign-off are added automatically — do not write them.",
-    "Return JSON exactly like: {\"paragraph1\": \"...\", \"paragraph2\": \"...\"}",
+    "Return JSON exactly like: {\"callback_requested\": true, \"draft\": \"<paragraph 1>\\n\\n<paragraph 2>\"}",
     "",
-    "Language: " + (de ? "German, formal 'Sie'. Paragraph 1 follows a greeting ending in a comma, so start it with a lowercase letter unless the first word is a noun or 'Sie'/'Ihr'." : "English."),
+    "callback_requested: true if customer_message asks us to phone or call them back in any way — in any language,",
+    "  including typos and informal wording (e.g. \"ruckruff\", \"bitte anrufen\", \"pls ring me\", \"call me back\"). Otherwise false.",
+    "",
+    "draft: ONLY the two middle paragraphs, separated by one blank line. The greeting (\"" + greeting + "\") and the sign-off are added automatically — do not write them.",
+    "Language: " + (de ? "German, formal 'Sie'." : "English.") + " Every paragraph and every sentence starts with a capital letter.",
     "Voice: always speak as the company — 'we' and '" + (de ? "unser Team" : "our team") + "'. Never 'I'.",
     "",
     "Paragraph 1 — the customer's own message has priority over the form fields. In this order:",
-    "  a) If customer_asks_for_callback is true: start by confirming that our team will call them back" +
+    "  a) If callback_requested is true: start by confirming that our team will call them back" +
       " (if customer_gave_phone_number is false, say our team will contact them by email to arrange the call).",
     "  b) If other_products_mentioned_in_message is not empty: acknowledge that they mentioned it and say our team will look at it with them at the measuring visit.",
     "  c) If the message asks anything you cannot answer from the facts, say our team will clarify it with them.",
@@ -244,27 +254,34 @@ async function draftReply(f) {
 
     if (!r.ok) {
       console.error("OpenAI error", r.status, (await r.text()).slice(0, 500));
-      return { draft: null, reason: "OpenAI error " + r.status };
+      return { draft: null, callbackRequested: null, reason: "OpenAI error " + r.status };
     }
     const json = await r.json();
     const content = json && json.choices && json.choices[0] && json.choices[0].message && json.choices[0].message.content;
-    if (!content || !content.trim()) return { draft: null, reason: "empty answer" };
+    if (!content || !content.trim()) return { draft: null, callbackRequested: null, reason: "empty answer" };
 
-    // Read the two paragraphs (JSON expected; fall back to blank-line splitting)
-    let p1 = "";
-    let p2 = "";
-    try {
-      const parsed = JSON.parse(content);
-      p1 = tidyParagraph(parsed.paragraph1);
-      p2 = tidyParagraph(parsed.paragraph2);
-    } catch {
-      const parts = content.split(/\n\s*\n/).map(tidyParagraph).filter(Boolean);
-      p1 = parts[0] || "";
-      p2 = parts.slice(1).join(" ");
+    // Read { callback_requested, draft }
+    let parsed;
+    try { parsed = JSON.parse(content); } catch { parsed = null; }
+    if (!parsed || typeof parsed !== "object") {
+      return { draft: null, callbackRequested: null, reason: "answer was not JSON" };
     }
-    if (!p1 || !p2) return { draft: null, reason: "answer not in two paragraphs" };
+    // Only a real true/false counts; anything else means "we don't know"
+    const callbackRequested = typeof parsed.callback_requested === "boolean" ? parsed.callback_requested : null;
 
-    // Enforce the word budget (paragraph 1 gets at most ~60%)
+    // Split the draft into its two paragraphs
+    let parts = String(parsed.draft || "").split(/\n\s*\n/).map(tidyParagraph).filter(Boolean);
+    if (parts.length === 1) {
+      // One block of text: split it between sentences, roughly in half
+      const sentences = parts[0].split(/(?<=[.!?])\s+/);
+      const half = Math.ceil(sentences.length / 2);
+      parts = [sentences.slice(0, half).join(" "), sentences.slice(half).join(" ")].filter(Boolean);
+    }
+    if (parts.length < 2) return { draft: null, callbackRequested, reason: "draft not in two paragraphs" };
+
+    // Capital letters, then the word budget (paragraph 1 gets at most ~60%)
+    let p1 = capitalizeSentences(parts[0]);
+    let p2 = capitalizeSentences(parts.slice(1).join(" "));
     p1 = limitWords(p1, Math.ceil(bodyBudget * 0.6));
     p2 = limitWords(p2, bodyBudget - countWords(p1));
 
@@ -273,13 +290,13 @@ async function draftReply(f) {
     const problem = checkDraft(draft, f.language);
     if (problem) {
       console.error("AI draft rejected:", problem);
-      return { draft: null, reason: "failed the safety check (" + problem + ")" };
+      return { draft: null, callbackRequested, reason: "failed the safety check (" + problem + ")" };
     }
-    return { draft };
+    return { draft, callbackRequested };
   } catch (err) {
     const timedOut = err && err.name === "AbortError";
     console.error(timedOut ? "OpenAI timed out after 8s" : "OpenAI request failed", err && err.message);
-    return { draft: null, reason: timedOut ? "timed out after 8 seconds" : "request failed" };
+    return { draft: null, callbackRequested: null, reason: timedOut ? "timed out after 8 seconds" : "request failed" };
   } finally {
     clearTimeout(timer);
   }
@@ -361,12 +378,17 @@ module.exports = async function handler(req, res) {
     glazing: ALLOWED.glazing[data.glazing],
     estimate,
     message,
-    asksForCallback: msgInfo.asksForCallback,
     hasPhone: !!phone,
     otherProducts: msgInfo.otherProducts
   });
   const draft = ai.draft;
   const aiConfigured = ai.reason !== "not configured";
+
+  // Callback: decided by the AI. No message means no callback request.
+  // If the AI gave no usable answer we say "Unknown" rather than guessing "No",
+  // so a callback request is never silently missed.
+  const callback = !message ? false : ai.callbackRequested;   // true / false / null
+  const callbackLabel = callback === true ? "Yes" : callback === false ? "No" : "Unknown — please read the message";
 
   // "Reply with this draft" link: opens a new email to the customer with the draft filled in
   let mailto = "";
@@ -395,7 +417,7 @@ module.exports = async function handler(req, res) {
     ["Phone", phone || "—"],
     ["Email", email || "—"],
     ["Message", message || "—"],
-    ["Callback requested", msgInfo.asksForCallback ? "Yes (mentioned in message)" : "No"],
+    ["Callback requested", callbackLabel, callback === true],   // third item = highlight this row
     ["Reply language", language === "de" ? "German" : "English"],
     ["Received", time + " (Vienna time)"]
   ];
@@ -422,20 +444,33 @@ module.exports = async function handler(req, res) {
     draftHtml = '<p style="margin:24px 0 0;font-size:13px;color:#5a5f5b">The AI reply draft could not be created this time.</p>';
   }
 
+  // Highlighted banner at the top when the customer wants a callback
+  const callbackNote = "Callback requested — please call the customer" +
+    (phone ? " on " + phone + "." : ". No phone number was given, so reply by email to arrange the call.");
+  const bannerText = callback === true ? "*** " + callbackNote + " ***\n\n" : "";
+  const bannerHtml = callback === true
+    ? '<div style="margin:0 0 18px;padding:12px 16px;background:#fff1c2;border:1px solid #e8c046;border-radius:8px;font-weight:bold;color:#4d3800">' +
+      escapeHtml(callbackNote) + "</div>"
+    : "";
+
   const text =
+    bannerText +
     "New quote request from the website\n\n" +
-    rows.map(([k, v]) => k + ": " + v).join("\n") +
+    rows.map(([k, v, highlight]) => k + ": " + (highlight ? v.toUpperCase() : v)).join("\n") +
     "\n\nThe estimate is the demo range shown on the website, not a final price." +
     draftText;
 
+  const cell = "border-bottom:1px solid #e5e5e0;vertical-align:top;";
   const html =
     '<div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;color:#121412;max-width:560px">' +
+    bannerHtml +
     '<h2 style="margin:0 0 16px;font-size:20px;color:#0F5C4A">New quote request</h2>' +
     '<table cellpadding="8" cellspacing="0" style="border-collapse:collapse;width:100%">' +
-    rows.map(([k, v]) =>
-      '<tr><td style="border-bottom:1px solid #e5e5e0;color:#5a5f5b;width:170px;vertical-align:top">' + escapeHtml(k) +
-      '</td><td style="border-bottom:1px solid #e5e5e0;white-space:pre-wrap">' + escapeHtml(v) + "</td></tr>"
-    ).join("") +
+    rows.map(([k, v, highlight]) => {
+      const hl = highlight ? "background:#fff1c2;font-weight:bold;color:#4d3800;" : "";
+      return '<tr><td style="' + cell + "width:170px;color:#5a5f5b;" + hl + '">' + escapeHtml(k) +
+        '</td><td style="' + cell + "white-space:pre-wrap;" + hl + '">' + escapeHtml(v) + "</td></tr>";
+    }).join("") +
     "</table>" +
     '<p style="margin-top:16px;font-size:13px;color:#5a5f5b">The estimate is the demo range shown on the website, not a final price.</p>' +
     draftHtml +
@@ -445,7 +480,7 @@ module.exports = async function handler(req, res) {
     from: FROM,
     to: [to],
     subject: "Quote request: " + ALLOWED.product[data.product] + " — " + name +
-      (msgInfo.asksForCallback ? " (callback requested)" : ""),
+      (callback === true ? " (callback requested)" : ""),
     text,
     html
   };
